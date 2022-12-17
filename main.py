@@ -15,6 +15,7 @@ VIEW_SCALE = os.getenv("VIEW_SCALE")
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 # RUN_SCALE = 0.25
 # VIEW_SCALE = 0.75
+DISPLAY = False
 
 
 def find_face_from_name(name):
@@ -40,12 +41,13 @@ process_this_frame = True
 # Load the config file, if it does not exist or is blank, create it
 config = {
     "URL": "rtsp://localhost:8554/example",
-    "RUN_SCALE": "0.25",
-    "VIEW_SCALE": "0.75",
+    "run_scale": "0.25",
+    "view_scale": "0.75",
     "faces": {
         "example1": {"image": "example1.jpg", "last_seen": ""},
         "example2": {"image": "example2.jpg", "last_seen": ""},
     },
+    "display": True
 }
 config_path = pathlib.Path("config.json")
 if config_path.exists():
@@ -70,6 +72,12 @@ if VIEW_SCALE:
     config["VIEW_SCALE"] = VIEW_SCALE
 else:
     VIEW_SCALE = float(config["VIEW_SCALE"])
+if DISPLAY:
+    config["DISPLAY"] = DISPLAY
+else:
+    DISPLAY = config["display"]
+
+print(f"Current config: {config}")
 
 for face in config["faces"]:
     # Load a sample picture and learn how to recognize it.
@@ -165,8 +173,9 @@ while True:
             view_frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1
         )
 
-    # Display the resulting image
-    cv2.imshow("Scaled View", view_frame)
+    # Display the resulting image if DISPLAY is set to true
+    if DISPLAY:
+        cv2.imshow("Scaled View", view_frame)
 
     # Hit 'q' on the keyboard to quit!
     if cv2.waitKey(1) & 0xFF == ord("q"):
