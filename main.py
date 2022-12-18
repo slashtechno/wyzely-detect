@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import os
 import json
 import pathlib
+import requests
+import time
 
 
 load_dotenv()
@@ -82,6 +84,27 @@ else:
 
 print(f"Current config: {config}")
 
+# Try this 5 times, 5 seconds apart. If the stream is not available, exit
+for i in range(5):
+    # Check if HLS stream is available using the requests library
+    # If it is not, print an error and exit
+    try:
+    #    Replace rtsp with http and the port with 8888
+        r = requests.get(URL.replace("rtsp", "http").replace(":8554", ":8888"))
+        if r.status_code != 200:
+            print("HLS stream not available, please check your URL")
+            exit()
+    except requests.exceptions.RequestException as e:
+        print("HLS stream not available, please check your URL")
+        if i == 4:
+            exit()
+        else: 
+            print(f"Retrying in 5 seconds ({i+1}/5)")
+            time.sleep(5)
+            continue
+
+
+
 for face in config["faces"]:
     # Load a sample picture and learn how to recognize it.
     image = face_recognition.load_image_file(config["faces"][face]["image"])
@@ -95,6 +118,9 @@ video_capture = cv2.VideoCapture(URL)
 # This makes it so that the video capture will only grab the most recent frame
 # However, this means that the video may be choppy
 video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
+# Print the resolution of the video
+print(f"Video resolution: {video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)}x{video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)}")
 
 while True:
     # Grab a single frame of video
