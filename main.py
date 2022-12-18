@@ -161,7 +161,7 @@ while True:
                     data=f'"{name}" has been seen',
                     headers={
                         "Title": "Face Detected",
-                        "Priority": "urgent",
+                        "Priority": "default",
                         "Tags": "neutral_face",
                     },
                 )
