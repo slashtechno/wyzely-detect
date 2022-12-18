@@ -174,7 +174,7 @@ while True:
     # Iterate over each face found in the frame to draw a box around it
     # Zip is used to iterate over two lists at the same time
     for (top, right, bottom, left), name in zip(face_locations, face_names):
-        print(f"Face found at {top}, {right}, {bottom}, {left} with name {name}")
+        # print(f"Face found at {top}, {right}, {bottom}, {left} with name {name}")
         # Scale back up face locations since the frame we detected in was scaled to 1/4 size
         top = int(top * (VIEW_SCALE / RUN_SCALE))
         right = int(right * (VIEW_SCALE / RUN_SCALE))
