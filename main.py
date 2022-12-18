@@ -44,12 +44,12 @@ config = {
     "run_scale": "0.25",
     "view_scale": "0.75",
     "faces": {
-        "example1": {"image": "example1.jpg", "last_seen": ""},
-        "example2": {"image": "example2.jpg", "last_seen": ""},
+        "example1": {"image": "config/example1.jpg", "last_seen": ""},
+        "example2": {"image": "config/example2.jpg", "last_seen": ""},
     },
     "display": True
 }
-config_path = pathlib.Path("config.json")
+config_path = pathlib.Path("config/config.json")
 if config_path.exists():
     with open(config_path, "r") as config_file:
         config = json.load(config_file)
@@ -57,6 +57,7 @@ else:
     with open(config_path, "w") as config_file:
         json.dump(config, config_file, indent=4)
     print("Config file created, please edit it and restart the program")
+    print("For relative paths, use the format config/example.jpg")
     exit()
 
 
