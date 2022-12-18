@@ -47,7 +47,7 @@ services:
       depends_on:
         - bridge
       # Use wait-for-it to wait for the bridge at port 8554 to be ready and then run /app/main.py
-      command: /bin/sh -c "wait-for-it.sh bridge:8554 --timeout=0 --strict -- /app/main.py"
+      command: /bin/sh -c "wait-for-it.sh bridge:8554 --timeout=0 --strict -- python /app/main.py"
 
 
 # How can this be run and a .env file passed?

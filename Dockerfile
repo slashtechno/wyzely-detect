@@ -26,14 +26,14 @@ RUN apt-get clean
 RUN rm -rf /tmp/* /var/tmp/*
 ENV CFLAGS=-static
 # Install dos2unix
-RUN apt-get install -y dos2unix
+# RUN apt-get install -y dos2unix
 # Upgrade pip
 RUN pip3 install --upgrade pip
 # Copy directory to container
 WORKDIR /app
 COPY . ./
 # Run dos2unix on all files in /app
-RUN dos2unix /app/*
+# RUN dos2unix /app/*
 # Install from requirements.txt
 RUN pip3 install -r requirements.txt
 # Install wait-for-it so this can easily be used with docker-compose
