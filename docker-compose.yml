@@ -61,4 +61,4 @@ services:
           fi
         done
         "
-      
+      tty: true
