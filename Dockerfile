@@ -38,5 +38,5 @@ COPY . ./
 RUN pip3 install -r requirements.txt
 # Install wait-for-it so this can easily be used with docker-compose
 # Example: command: ["./wait-for-it.sh", "bridge:8554", "--", "python", "main.py"]
-RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod +x wait-for-it.sh && mv wait-for-it.sh /usr/local/bin
-CMD ["python", "main.py"]
+RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod +x wait-for-it.sh && mv wait-for-it.sh /bin
+CMD ["python3", "main.py"]

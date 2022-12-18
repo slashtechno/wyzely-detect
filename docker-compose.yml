@@ -18,6 +18,7 @@ services:
             all:
               aliases:
                 - bridge
+                - wyze-bridge
     ntfy:
       image: binwiederhier/ntfy
       container_name: ntfy-wyze
@@ -46,9 +47,18 @@ services:
         - RUN_BY_COMPOSE=true
       depends_on:
         - bridge
-      # Use wait-for-it to wait for the bridge at port 8888 (hls) to be ready and then run /app/main.py
-      # command: /bin/bash -c "wait-for-it.sh -h bridge -p 8888 --timeout=0 --strict -- echo "done" && python /app/main.py"
-
-
-# How can this be run and a .env file passed?
-# docker-compose up -d --env-file .env
+      # Use curl to check if the rtsp stream is up, then run the face recognition
+      command: >
+        /bin/sh -c "
+        while true; do
+          curl -s http://bridge:8888/cv/0.m3u8 > /dev/null
+          if [ $? -eq 0 ]; then
+            echo 'Stream is up, running face recognition'
+            python3 /app/main.py
+          else
+            echo 'Stream is down, waiting 5 seconds'
+            sleep 5
+          fi
+        done
+        "
+      

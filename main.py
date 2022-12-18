@@ -33,6 +33,8 @@ def write_config():
         json.dump(config, config_file, indent=4)
 
 
+print("Hello, world!")
+
 # Initialize some variables
 face_locations = []
 face_encodings = []
@@ -44,7 +46,7 @@ process_this_frame = True
 # Load the config file, if it does not exist or is blank, create it
 config = {
     # If RUN_BY_COMPOSE is true, set url to rtsp://wyze-bridge:8554/wyze_cam_name, otherwise set it to "rtsp://localhost:8554/wyze_cam_name"
-    "URL": "rtsp://localhost:8554/wyze_cam_name" if not RUN_BY_COMPOSE else "rtsp://wyze-bridge:8554/wyze_cam_name",
+    "URL": "rtsp://localhost:8554/wyze_cam_name" if not RUN_BY_COMPOSE else "rtsp://bridge:8554/wyze_cam_name",
     "run_scale": "0.25",
     "view_scale": "0.75",
     "faces": {
@@ -85,24 +87,25 @@ else:
 print(f"Current config: {config}")
 
 # Try this 5 times, 5 seconds apart. If the stream is not available, exit
-for i in range(5):
-    # Check if HLS stream is available using the requests library
-    # If it is not, print an error and exit
-    try:
-    #    Replace rtsp with http and the port with 8888
-        url = URL.replace("rtsp", "http").replace(":8554", ":8888")
-        r = requests.get(url)
-        if r.status_code != 200:
-            print("HLS stream not available, please check your URL")
-            exit()
-    except requests.exceptions.RequestException as e:
-        print("HLS stream not available, please check your URL")
-        if i == 4:
-            exit()
-        else: 
-            print(f"Retrying in 5 seconds ({i+1}/5)")
-            time.sleep(5)
-            continue
+# for i in range(5):
+#     # Check if HLS stream is available using the requests library
+#     # If it is not, print an error and exit
+#     url = URL.replace("rtsp", "http").replace(":8554", ":8888")
+#     print(f"Checking if HLS stream is available at {url}...")
+#     try:
+#     #    Replace rtsp with http and the port with 8888
+#         r = requests.get(url)
+#         if r.status_code != 200:
+#             print("HLS stream not available, please check your URL")
+#             exit()
+#     except requests.exceptions.RequestException as e:
+#         print("HLS stream not available, please check your URL")
+#         if i == 4:
+#             exit()
+#         else: 
+#             print(f"Retrying in 5 seconds ({i+1}/5)")
+#             time.sleep(5)
+#             continue
 
 
 
