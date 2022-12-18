@@ -124,7 +124,9 @@ while True:
     rgb_run_frame = run_frame[:, :, ::-1]
     # Find all the faces and face encodings in the current frame of video
     # model cnn is gpu accelerated, but hog is cpu only
-    face_locations = face_recognition.face_locations(rgb_run_frame, model="hog") # This crashes the program without output on my laptop when it's running without Docker compose
+    face_locations = face_recognition.face_locations(
+        rgb_run_frame, model="hog"
+    )  # This crashes the program without output on my laptop when it's running without Docker compose
     face_encodings = face_recognition.face_encodings(rgb_run_frame, face_locations)
     face_names = []
     for face_encoding in face_encodings:
@@ -142,7 +144,7 @@ while True:
             # If it's never been seen, set the last seen time to x+5 seconds ago so it will be seen
             # Kind of a hacky way to do it, but it works... hopefully
             if last_seen == "":
-                print(f"{name} has been seen")
+                print(f"{name} has been seen for the first time")
                 config["faces"][name]["last_seen"] = (
                     datetime.datetime.now() - datetime.timedelta(seconds=15)
                 ).strftime(DATETIME_FORMAT)
@@ -152,22 +154,22 @@ while True:
                 last_seen, DATETIME_FORMAT
             ) > datetime.timedelta(seconds=10):
                 print(f"{name} has been seen")
+                # Send a notification
+                print(f"Sending notification to{NTFY_URL}")
+                requests.post(
+                    NTFY_URL,
+                    data=f'"{name}" has been seen',
+                    headers={
+                        "Title": "Face Detected",
+                        "Priority": "urgent",
+                        "Tags": "neutral_face",
+                    },
+                )
+            print("Writing config...")
             # Update the last seen time
             config["faces"][name]["last_seen"] = datetime.datetime.now().strftime(
                 DATETIME_FORMAT
             )
-            # Send a notification
-            print(f"Sending notification to{NTFY_URL}")
-            requests.post(
-                NTFY_URL,
-                data=f'"{name}" has been seen',
-                headers={
-                    "Title": "Face Detected",
-                    "Priority": "urgent",
-                    "Tags": "neutral_face",
-                },
-            )
-            print("Writing config...")
             write_config()
         face_names.append(name)
     # Display the results
