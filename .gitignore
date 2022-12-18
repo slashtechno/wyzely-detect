@@ -1,4 +1,5 @@
 # person.jpg
 # config.json
-config/
+config/*.jpg
+
 .env
