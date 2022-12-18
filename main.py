@@ -16,6 +16,7 @@ DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 # RUN_SCALE = 0.25
 # VIEW_SCALE = 0.75
 DISPLAY = False
+RUN_BY_COMPOSE = os.getenv("RUN_BY_COMPOSE")
 
 
 def find_face_from_name(name):
@@ -40,7 +41,8 @@ process_this_frame = True
 
 # Load the config file, if it does not exist or is blank, create it
 config = {
-    "URL": "rtsp://localhost:8554/example",
+    # If RUN_BY_COMPOSE is true, set url to rtsp://wyze-bridge:8554/wyze_cam_name, otherwise set it to "rtsp://localhost:8554/wyze_cam_name"
+    "URL": "rtsp://localhost:8554/wyze_cam_name" if not RUN_BY_COMPOSE else "rtsp://wyze-bridge:8554/wyze_cam_name",
     "run_scale": "0.25",
     "view_scale": "0.75",
     "faces": {
@@ -175,7 +177,7 @@ while True:
         )
 
     # Display the resulting image if DISPLAY is set to true
-    if DISPLAY:
+    if config["display"]:
         cv2.imshow("Scaled View", view_frame)
 
     # Hit 'q' on the keyboard to quit!

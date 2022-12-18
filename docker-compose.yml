@@ -1,0 +1,54 @@
+version: '2.4'
+networks:
+    all:
+services:
+    bridge:
+        container_name: bridge-wyze
+        restart: unless-stopped
+        image: mrlt8/wyze-bridge:latest
+        # ports:
+        #     - 1935:1935 # RTMP
+        #     - 8554:8554 # RTSP
+        #     - 8888:8888 # HLS
+        #     - 5000:5000 # WEB-UI
+        environment:
+            - WYZE_EMAIL=${WYZE_EMAIL} # Replace with wyze email 
+            - WYZE_PASSWORD=${WYZE_PASSWORD} # Replace with wyze password
+        networks:
+            all:
+              aliases:
+                - bridge
+    ntfy:
+      image: binwiederhier/ntfy
+      container_name: ntfy-wyze
+      command:
+        - serve
+      environment:
+        - TZ=UTC    # optional: set desired timezone
+      # volumes:
+      #   - /var/cache/ntfy:/var/cache/ntfy
+      #   - /etc/ntfy:/etc/ntfy
+      ports:
+        - 9216:80
+      restart: unless-stopped
+      networks:
+        all:
+    facial_recognition:
+      container_name: face-recognition-wyze
+      restart: unless-stopped
+      image: ghcr.io/slashtechno/wyze_face_recognition:latest
+      volumes:
+        # ./config is mounted as /app/config
+        - ./config:/app/config
+      networks:
+        all:
+      environment:
+        - RUN_BY_COMPOSE=true
+      depends_on:
+        - bridge
+      # Use wait-for-it to wait for the bridge at port 8554 to be ready and then run /app/main.py
+      command: /bin/sh -c "wait-for-it.sh bridge:8554 --timeout=0 --strict -- /app/main.py"
+
+
+# How can this be run and a .env file passed?
+# docker-compose up -d --env-file .env
