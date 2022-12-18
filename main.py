@@ -165,11 +165,11 @@ while True:
                         "Tags": "neutral_face",
                     },
                 )
-            print("Writing config...")
             # Update the last seen time
             config["faces"][name]["last_seen"] = datetime.datetime.now().strftime(
                 DATETIME_FORMAT
             )
+            # print("Writing config...")
             write_config()
         face_names.append(name)
     # Display the results
