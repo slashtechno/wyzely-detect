@@ -46,8 +46,8 @@ services:
         - RUN_BY_COMPOSE=true
       depends_on:
         - bridge
-      # Use wait-for-it to wait for the bridge at port 8554 to be ready and then run /app/main.py
-      command: /bin/bash -c "wait-for-it.sh -h bridge -p 1935 --timeout=0 --strict -- echo "done" && python /app/main.py"
+      # Use wait-for-it to wait for the bridge at port 8888 (hls) to be ready and then run /app/main.py
+      # command: /bin/bash -c "wait-for-it.sh -h bridge -p 8888 --timeout=0 --strict -- echo "done" && python /app/main.py"
 
 
 # How can this be run and a .env file passed?

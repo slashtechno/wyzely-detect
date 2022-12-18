@@ -90,7 +90,8 @@ for i in range(5):
     # If it is not, print an error and exit
     try:
     #    Replace rtsp with http and the port with 8888
-        r = requests.get(URL.replace("rtsp", "http").replace(":8554", ":8888"))
+        url = URL.replace("rtsp", "http").replace(":8554", ":8888")
+        r = requests.get(url)
         if r.status_code != 200:
             print("HLS stream not available, please check your URL")
             exit()
