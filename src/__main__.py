@@ -75,8 +75,10 @@ def main():
 
     # Check if a CUDA GPU is available. If it is, set it via torch. Ff not, set it to cpu
     # https://github.com/ultralytics/ultralytics/issues/3084#issuecomment-1732433168
-    device = "0" if torch.cuda.is_available() else "cpu"
-    if device == "0":
+    # Currently, I have been unable to set up Poetry to use GPU for Torch    
+    for i in range(torch.cuda.device_count()):
+        print(torch.cuda.get_device_properties(i).name)
+    if torch.cuda.is_available():
         torch.cuda.set_device(0)
         print("Set CUDA device")
     else: 
@@ -84,6 +86,7 @@ def main():
     
     model = YOLO("yolov8n.pt")
 
+    # video_capture = cv2.VideoCapture(args.capture_device)
     video_capture = cv2.VideoCapture(args.capture_device)
     # Eliminate lag by setting the buffer size to 1
     # This makes it so that the video capture will only grab the most recent frame
@@ -105,9 +108,21 @@ def main():
         run_frame = cv2.resize(frame, (0, 0), fx=args.run_scale, fy=args.run_scale)
         # view_frame = cv2.resize(frame, (0, 0), fx=args.view_scale, fy=args.view_scale)
     
-        results = model(run_frame)
+        results = model(run_frame, verbose=False)
         for r in results:
-            
+            for box in r.boxes:
+                # Get the name of the object
+                class_id = r.names[box.cls[0].item()]
+                # Get the coordinates of the object
+                cords = box.xyxy[0].tolist()
+                cords = [round(x) for x in cords]
+                # Get the confidence
+                conf = round(box.conf[0].item(), 2)
+                # Print it out, adding a spacer between each object
+                print("Object type:", class_id)
+                print("Coordinates:", cords)
+                print("Probability:", conf)
+                print("---")
             im_array = r.plot()
             # Scale back up the coordinates of the locations of detected objects.
             # im_array = np.multiply(im_array, 1/args.run_scale)
