@@ -57,12 +57,12 @@ def main():
     # )
 
     stream_source = argparser.add_mutually_exclusive_group()
-    # stream_source.add_argument(
-    #     '--url',
-    #     default=os.environ['URL'] if 'URL' in os.environ and os.environ['URL'] != '' else None,  # noqa: E501
-    #     type=str,
-    #     help="The URL of the stream to use",
-    # )
+    stream_source.add_argument(
+        '--url',
+        default=os.environ['URL'] if 'URL' in os.environ and os.environ['URL'] != '' else None,  # noqa: E501
+        type=str,
+        help="The URL of the stream to use",
+    )
     stream_source.add_argument(
         "--capture-device",
         default=os.environ["CAPTURE_DEVICE"]
@@ -97,8 +97,13 @@ def main():
 
     model = YOLO("yolov8n.pt")
 
-    # video_capture = cv2.VideoCapture(args.capture_device)
-    video_capture = cv2.VideoCapture("rtsp://192.168.1.7:8554/cv")
+    # Depending on if the user wants to use a stream or a capture device,
+    # Set the video capture to the appropriate source
+    if args.url:
+        video_capture = cv2.VideoCapture(args.url)
+    else:
+        video_capture = cv2.VideoCapture(args.capture_device)
+
     # Eliminate lag by setting the buffer size to 1
     # This makes it so that the video capture will only grab the most recent frame
     # However, this means that the video may be choppy
@@ -116,7 +121,7 @@ def main():
         # Only process every other frame of video to save time
         # Resize frame of video to a smaller size for faster recognition processing
         run_frame = cv2.resize(frame, (0, 0), fx=args.run_scale, fy=args.run_scale)
-        # view_frame = cv2.resize(frame, (0, 0), fx=args.view_scale, fy=args.view_scale)
+        # view_frame = cv2.resize(frame, (0, 0), fx=`args.`view_scale, fy=args.view_scale)
 
         results = model(run_frame, verbose=False)
         for r in results:
