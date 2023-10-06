@@ -132,6 +132,7 @@ def main():
                         "last_detection_time": None,
                         "detection_duration": None,
                         # "first_detection_time": None,
+                        "last_notification_time": None,
                     }  
             for box in r.boxes:
                 # Get the name of the object
@@ -155,10 +156,10 @@ def main():
 
                 if (
                     object_names[class_id]["last_detection_time"] is None
-                    or time.time() - object_names[class_id]["last_detection_time"] > 15
+                    or time.time() - object_names[class_id]["last_detection_time"] > 15 
                     or object_names[class_id]["detection_duration"] is None
                 ):
-                    print(f"First detection of {class_id}")
+                    print(f"First detection of {class_id} in session")
                     # time.time() returns the number of seconds since the epoch
                     object_names[class_id]["last_detection_time"] = time.time()
                     # object_names[class_id]["first_detection_time"] = time.time()
@@ -182,17 +183,22 @@ def main():
                 if (
                     object_names[class_id]["detection_duration"] >= 2
                     and time.time() - object_names[class_id]["last_detection_time"]
-                    <= 15
+                    <= 15 
                 ):
-                    print(f"Detected {class_id} for 2 seconds")
-                    headers = notify.construct_ntfy_headers(
-                        title=f"{class_id} Detected",
-                        tag="rotating_light",
-                        priority="default",
-                    )
-                    notify.send_notification(
-                        data=f"{class_id} Detected", headers=headers, url=args.ntfy_url
-                    )
+                    # If the last notification was more than 15 seconds ago, then send a notification
+                    if object_names[class_id]["last_notification_time"] is None or time.time() - object_names[class_id]["last_notification_time"] > 15:
+                        object_names[class_id]["last_notification_time"] = time.time()
+                        print(f"Detected {class_id} for 2 seconds")
+                        headers = notify.construct_ntfy_headers(
+                            title=f"{class_id} Detected",
+                            tag="rotating_light",
+                            priority="default",
+                        )
+                        notify.send_notification(
+                            data=f"{class_id} Detected", headers=headers, url=args.ntfy_url
+                        )
+                        # Reset the detection duration
+                        object_names[class_id]["detection_duration"] = 0
             im_array = r.plot()
             # Scale back up the coordinates of the locations of detected objects.
             # im_array = np.multiply(im_array, 1/args.run_scale)
