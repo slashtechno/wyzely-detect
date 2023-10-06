@@ -84,6 +84,33 @@ def main():
         help="The URL to send notifications to",
     )
 
+    timers = argparser.add_argument_group("Timers")
+    timers.add_argument(
+        "--detection-duration",
+        default=os.environ["DETECTION_DURATION"]
+        if "DETECTION_DURATION" in os.environ and os.environ["DETECTION_DURATION"] != ""
+        else 2,
+        type=int,
+        help="The duration (in seconds) that an object must be detected for before sending a notification",
+    )
+    timers.add_argument(
+        "--detection-window",
+        default=os.environ["DETECTION_WINDOW"]
+        if "DETECTION_WINDOW" in os.environ and os.environ["DETECTION_WINDOW"] != ""
+        else 15,
+        type=int,
+        help="The time (seconds) before the detection duration resets",
+    )
+    timers.add_argument(
+        "--notification-window",
+        default=os.environ["NOTIFICATION_WINDOW"]
+        if "NOTIFICATION_WINDOW" in os.environ
+        and os.environ["NOTIFICATION_WINDOW"] != ""
+        else 30,
+        type=int,
+        help="The time (seconds) before another notification can be sent",
+    )
+
     args = argparser.parse_args()
 
     # Check if a CUDA GPU is available. If it is, set it via torch. Ff not, set it to cpu
@@ -158,59 +185,72 @@ def main():
                 # End goal: Send a notification when an object has been detected for 2 seconds in the past 15 seconds.
                 # However, don't send a notification if the last notification was less than 15 seconds ago
 
-
+                # (re)start cycle
                 if (
                     # If the object has not been detected before
                     object_names[class_id]["last_detection_time"] is None
                     # If the last detection was more than 15 seconds ago
-                    or time.time() - object_names[class_id]["last_detection_time"] > 15
+                    or time.time() - object_names[class_id]["last_detection_time"]
+                    > args.detection_window
                 ):
+                    # Set the last detection time to now
                     object_names[class_id]["last_detection_time"] = time.time()
-                    object_names[class_id]["detection_duration"] = 0
                     print(f"First detection of {class_id} in this detection window")
+                    # This line is important. It resets the detection duration when the object hasn't been detected for a while
+                    print(
+                        f"Resetting detection duration for {class_id} since it hasn't been detected for {args.detection_window} seconds"
+                    )  # noqa: E501
+                    object_names[class_id]["detection_duration"] = 0
                 else:
-                    # Check if the last detection was under 15 seconds ago
-                    # If it was, leave the detection duration as is
+                    # Check if the last notification was less than 15 seconds ago
+                    # If it was, then don't do anything
                     if (
                         time.time() - object_names[class_id]["last_detection_time"]
-                        <= 15
+                        <= args.notification_window
                     ):
                         pass
                     # If it was more than 15 seconds ago, reset the detection duration
-                    # This effectively resets the cycle
+                    # This effectively resets the notification timer
                     else:
+                        print("Notification timer has expired - resetting")
                         object_names[class_id]["detection_duration"] = 0
                     object_names[class_id]["detection_duration"] += (
                         time.time() - object_names[class_id]["last_detection_time"]
                     )
+                    # print("Updating detection duration")
                     object_names[class_id]["last_detection_time"] = time.time()
 
+                # (re)send notification
                 # Check if detection has been ongoing for 2 seconds or more in the past 15 seconds
                 if (
-                    object_names[class_id]["detection_duration"] >= 2
+                    object_names[class_id]["detection_duration"]
+                    >= args.detection_duration
                     and time.time() - object_names[class_id]["last_detection_time"]
-                    <= 15
+                    <= args.detection_window
                 ):
                     # If the last notification was more than 15 seconds ago, then send a notification
                     if (
                         object_names[class_id]["last_notification_time"] is None
                         or time.time()
                         - object_names[class_id]["last_notification_time"]
-                        > 15
+                        > args.notification_window
                     ):
                         object_names[class_id]["last_notification_time"] = time.time()
-                        print(f"Detected {class_id} for 2 seconds")
+                        print(
+                            f"Detected {class_id} for {args.detection_duration} seconds"
+                        )
                         headers = notify.construct_ntfy_headers(
-                            title=f"{class_id} Detected",
+                            title=f"{class_id} detected",
                             tag="rotating_light",
                             priority="default",
                         )
                         notify.send_notification(
-                            data=f"{class_id} Detected",
+                            data=f"{class_id} detected for {args.detection_duration} seconds",
                             headers=headers,
                             url=args.ntfy_url,
                         )
                         # Reset the detection duration
+                        print("Just sent a notification - resetting detection duration")
                         object_names[class_id]["detection_duration"] = 0
             im_array = r.plot()
             # Scale back up the coordinates of the locations of detected objects.
