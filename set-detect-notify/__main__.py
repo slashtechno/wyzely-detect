@@ -58,8 +58,10 @@ def main():
 
     stream_source = argparser.add_mutually_exclusive_group()
     stream_source.add_argument(
-        '--url',
-        default=os.environ['URL'] if 'URL' in os.environ and os.environ['URL'] != '' else None,  # noqa: E501
+        "--url",
+        default=os.environ["URL"]
+        if "URL" in os.environ and os.environ["URL"] != ""
+        else None,  # noqa: E501
         type=str,
         help="The URL of the stream to use",
     )
@@ -133,7 +135,7 @@ def main():
                         "detection_duration": None,
                         # "first_detection_time": None,
                         "last_notification_time": None,
-                    }  
+                    }
             for box in r.boxes:
                 # Get the name of the object
                 class_id = r.names[box.cls[0].item()]
@@ -148,45 +150,54 @@ def main():
                 # print("Probability:", conf)
                 # print("---")
 
-                # Now do stuff
+                # Now do stuff (if conf > 0.5)
+                if conf < 0.5:
+                    # If the confidence is less than 0.5, then SKIP!!!!
+                    continue
 
-                # If this is the first time the object has been detected
-                # or if it has been more than 15 seconds since the last detection
-                # reset the detection duration
+                # End goal: Send a notification when an object has been detected for 2 seconds in the past 15 seconds.
+                # However, don't send a notification if the last notification was less than 15 seconds ago
+
 
                 if (
+                    # If the object has not been detected before
                     object_names[class_id]["last_detection_time"] is None
-                    or time.time() - object_names[class_id]["last_detection_time"] > 15 
-                    or object_names[class_id]["detection_duration"] is None
+                    # If the last detection was more than 15 seconds ago
+                    or time.time() - object_names[class_id]["last_detection_time"] > 15
                 ):
-                    print(f"First detection of {class_id} in session")
-                    # time.time() returns the number of seconds since the epoch
                     object_names[class_id]["last_detection_time"] = time.time()
-                    # object_names[class_id]["first_detection_time"] = time.time()
                     object_names[class_id]["detection_duration"] = 0
-                    headers = notify.construct_ntfy_headers(
-                        title=f"{class_id} Detected",
-                        tag="rotating_light",
-                        priority="default",
-                    )
-                    notify.send_notification(
-                        data=f"{class_id} Detected", headers=headers, url=args.ntfy_url
-                    )
+                    print(f"First detection of {class_id} in this detection window")
                 else:
-                    # Add the time since the last detection to the total detection duration
+                    # Check if the last detection was under 15 seconds ago
+                    # If it was, leave the detection duration as is
+                    if (
+                        time.time() - object_names[class_id]["last_detection_time"]
+                        <= 15
+                    ):
+                        pass
+                    # If it was more than 15 seconds ago, reset the detection duration
+                    # This effectively resets the cycle
+                    else:
+                        object_names[class_id]["detection_duration"] = 0
                     object_names[class_id]["detection_duration"] += (
                         time.time() - object_names[class_id]["last_detection_time"]
                     )
-
+                    object_names[class_id]["last_detection_time"] = time.time()
 
                 # Check if detection has been ongoing for 2 seconds or more in the past 15 seconds
                 if (
                     object_names[class_id]["detection_duration"] >= 2
                     and time.time() - object_names[class_id]["last_detection_time"]
-                    <= 15 
+                    <= 15
                 ):
                     # If the last notification was more than 15 seconds ago, then send a notification
-                    if object_names[class_id]["last_notification_time"] is None or time.time() - object_names[class_id]["last_notification_time"] > 15:
+                    if (
+                        object_names[class_id]["last_notification_time"] is None
+                        or time.time()
+                        - object_names[class_id]["last_notification_time"]
+                        > 15
+                    ):
                         object_names[class_id]["last_notification_time"] = time.time()
                         print(f"Detected {class_id} for 2 seconds")
                         headers = notify.construct_ntfy_headers(
@@ -195,7 +206,9 @@ def main():
                             priority="default",
                         )
                         notify.send_notification(
-                            data=f"{class_id} Detected", headers=headers, url=args.ntfy_url
+                            data=f"{class_id} Detected",
+                            headers=headers,
+                            url=args.ntfy_url,
                         )
                         # Reset the detection duration
                         object_names[class_id]["detection_duration"] = 0
