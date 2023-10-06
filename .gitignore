@@ -1,5 +1,6 @@
 .env
 config/
 using_yolov8.ipynb
+yolov8n.pt
 
 __pycache__/

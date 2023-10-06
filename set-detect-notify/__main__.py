@@ -12,7 +12,7 @@ from ultralytics import YOLO
 
 import argparse
 
-from .utils import notify, config_utils
+from .utils import notify
 
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 args = None
@@ -55,6 +55,16 @@ def main():
     # type=float,
     # help="The scale to view the detection at, default is 0.75",
     # )
+
+    argparser.add_argument(
+        "--confidence-threshold",
+        default=os.environ["CONFIDENCE_THRESHOLD"]
+        if "CONFIDENCE_THRESHOLD" in os.environ
+        and os.environ["CONFIDENCE_THRESHOLD"] != ""
+        else 0.6,
+        type=float,
+        help="The confidence threshold to use",
+    )
 
     stream_source = argparser.add_mutually_exclusive_group()
     stream_source.add_argument(
@@ -178,7 +188,7 @@ def main():
                 # print("---")
 
                 # Now do stuff (if conf > 0.5)
-                if conf < 0.5:
+                if conf < args.confidence_threshold:
                     # If the confidence is less than 0.5, then SKIP!!!!
                     continue
 
@@ -197,9 +207,12 @@ def main():
                     object_names[class_id]["last_detection_time"] = time.time()
                     print(f"First detection of {class_id} in this detection window")
                     # This line is important. It resets the detection duration when the object hasn't been detected for a while
-                    print(
-                        f"Resetting detection duration for {class_id} since it hasn't been detected for {args.detection_window} seconds"
-                    )  # noqa: E501
+                    # If detection duration is None, don't print anything.
+                    # Otherwise, print that the detection duration is being reset due to inactivity
+                    if object_names[class_id]["detection_duration"] is not None:
+                        print(
+                            f"Resetting detection duration for {class_id} since it hasn't been detected for {args.detection_window} seconds"  # noqa: E501
+                        )
                     object_names[class_id]["detection_duration"] = 0
                 else:
                     # Check if the last notification was less than 15 seconds ago
