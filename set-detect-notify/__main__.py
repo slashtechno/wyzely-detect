@@ -13,6 +13,7 @@ from ultralytics import YOLO
 import argparse
 
 from .utils import notify
+from .utils import utils
 
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 args = None
@@ -48,13 +49,13 @@ def main():
         type=float,
         help="The scale to run the detection at, default is 0.25",
     )
-    # argparser.add_argument(
-    # '--view-scale',
-    # # Set it to the env VIEW_SCALE if it isn't blank, otherwise set it to 0.75
-    # default=os.environ['VIEW_SCALE'] if 'VIEW_SCALE' in os.environ and os.environ['VIEW_SCALE'] != '' else 0.75,  # noqa: E501
-    # type=float,
-    # help="The scale to view the detection at, default is 0.75",
-    # )
+    argparser.add_argument(
+    '--view-scale',
+    # Set it to the env VIEW_SCALE if it isn't blank, otherwise set it to 0.75
+    default=os.environ['VIEW_SCALE'] if 'VIEW_SCALE' in os.environ and os.environ['VIEW_SCALE'] != '' else 0.75,  # noqa: E501
+    type=float,
+    help="The scale to view the detection at, default is 0.75",
+    )
 
     argparser.add_argument(
         "--confidence-threshold",
@@ -160,10 +161,12 @@ def main():
         # Only process every other frame of video to save time
         # Resize frame of video to a smaller size for faster recognition processing
         run_frame = cv2.resize(frame, (0, 0), fx=args.run_scale, fy=args.run_scale)
-        # view_frame = cv2.resize(frame, (0, 0), fx=`args.`view_scale, fy=args.view_scale)
+        # view_frame = cv2.resize(frame, (0, 0), fx=args.view_scale, fy=args.view_scale)
 
         results = model(run_frame, verbose=False)
-        for r in results:
+        for i, r in enumerate(results):
+            # list of dicts with each dict containing a label, x1, y1, x2, y2
+            plot_boxes = []
             # Setup dictionary of object names
             if not object_names:
                 for name in r.names.values():
@@ -174,6 +177,7 @@ def main():
                         "last_notification_time": None,
                     }
             for box in r.boxes:
+        
                 # Get the name of the object
                 class_id = r.names[box.cls[0].item()]
                 # Get the coordinates of the object
@@ -191,6 +195,18 @@ def main():
                 if conf < args.confidence_threshold:
                     # If the confidence is less than 0.5, then SKIP!!!!
                     continue
+
+
+                # Add the object to the list of objects to plot
+                plot_boxes.append(
+                    {
+                        "label": class_id,
+                        "x1": cords[0],
+                        "y1": cords[1],
+                        "x2": cords[2],
+                        "y2": cords[3],
+                    }
+                )
 
                 # End goal: Send a notification when an object has been detected for 2 seconds in the past 15 seconds.
                 # However, don't send a notification if the last notification was less than 15 seconds ago
@@ -265,13 +281,17 @@ def main():
                         # Reset the detection duration
                         print("Just sent a notification - resetting detection duration")
                         object_names[class_id]["detection_duration"] = 0
-            im_array = r.plot()
-            # Scale back up the coordinates of the locations of detected objects.
-            # im_array = np.multiply(im_array, 1/args.run_scale)
-            # print(type(im_array))
-            # print(im_array)
-            # exit()
-            cv2.imshow("View", im_array)
+            frame_to_show = utils.plot_label(
+                boxes=plot_boxes,
+                full_frame=frame,
+                # full_frame=r.plot(),
+                run_scale=args.run_scale,
+                view_scale=args.view_scale,
+            )
+            
+            # Display the resulting frame
+            # cv2.imshow("", r)
+            cv2.imshow(f"Video{i}", frame_to_show)
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord("q"):
