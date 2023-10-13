@@ -50,11 +50,13 @@ def main():
         help="The scale to run the detection at, default is 0.25",
     )
     argparser.add_argument(
-    '--view-scale',
-    # Set it to the env VIEW_SCALE if it isn't blank, otherwise set it to 0.75
-    default=os.environ['VIEW_SCALE'] if 'VIEW_SCALE' in os.environ and os.environ['VIEW_SCALE'] != '' else 0.75,  # noqa: E501
-    type=float,
-    help="The scale to view the detection at, default is 0.75",
+        "--view-scale",
+        # Set it to the env VIEW_SCALE if it isn't blank, otherwise set it to 0.75
+        default=os.environ["VIEW_SCALE"]
+        if "VIEW_SCALE" in os.environ and os.environ["VIEW_SCALE"] != ""
+        else 0.75,  # noqa: E501
+        type=float,
+        help="The scale to view the detection at, default is 0.75",
     )
 
     argparser.add_argument(
@@ -188,8 +190,10 @@ def main():
                 # If it isn't, print a warning
                 for obj in args.detect_object:
                     if obj not in object_names:
-                        print(f"Warning: {obj} is not in the list of objects the model can detect!")
-                    
+                        print(
+                            f"Warning: {obj} is not in the list of objects the model can detect!"
+                        )
+
             for box in r.boxes:
                 # Get the name of the object
                 class_id = r.names[box.cls[0].item()]
@@ -205,12 +209,13 @@ def main():
                 # print("---")
 
                 # Now do stuff (if conf > 0.5)
-                if conf < args.confidence_threshold or (class_id not in args.detect_object and args.detect_object != []):
+                if conf < args.confidence_threshold or (
+                    class_id not in args.detect_object and args.detect_object != []
+                ):
                     # If the confidence is too low
                     # or if the object is not in the list of objects to detect and the list of objects to detect is not empty
                     # then skip this iteration
                     continue
-
 
                 # Add the object to the list of objects to plot
                 plot_boxes.append(
@@ -303,7 +308,7 @@ def main():
                 run_scale=args.run_scale,
                 view_scale=args.view_scale,
             )
-            
+
             # Display the resulting frame
             # cv2.imshow("", r)
             cv2.imshow(f"Video{i}", frame_to_show)
