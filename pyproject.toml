@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "set-detect-notify"
+name = "set_detect_notify"
 version = "0.1.0"
 description = "Detect all the things"
 authors = ["slashtechno <77907286+slashtechno@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "set-detect-notify"}]
+packages = [{include = "set_detect_notify"}]
 
 [tool.poetry.dependencies]
 # python = "^3.10"
@@ -41,3 +41,6 @@ build-backend = "poetry.core.masonry.api"
 # Where possible, `black` will attempt to format to 88 characters
 # However, setting ruff to 135 will allow for longer lines that can't be auto-formatted
 line-length = 135
+
+[tool.poetry.scripts]
+set-detect-notify = "set_detect_notify.__main__:main"

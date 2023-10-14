@@ -275,5 +275,5 @@ def main():
     video_capture.release()
     cv2.destroyAllWindows()
 
-
-main()
+if __name__ == "__main__":
+    main()
