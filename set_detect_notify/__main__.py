@@ -1,10 +1,8 @@
 # import face_recognition
 import cv2
-import numpy as np
 import dotenv
 from pathlib import Path
 import os
-import time
 
 # import hjson as json
 import torch
@@ -18,11 +16,14 @@ from .utils import utils
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 args = None
 
-object_names = {}
+objects_and_peoples = {
+    "objects": {},
+    "peoples": {},
+}
 
 
 def main():
-    global object_names
+    global objects_and_peoples
     global args
     # RUN_BY_COMPOSE = os.getenv("RUN_BY_COMPOSE") # Replace this with code to check for gpu
 
@@ -45,7 +46,8 @@ def main():
         # Set it to the env RUN_SCALE if it isn't blank, otherwise set it to 0.25
         default=os.environ["RUN_SCALE"]
         if "RUN_SCALE" in os.environ and os.environ["RUN_SCALE"] != ""
-        else 0.25,  # noqa: E501
+        # else 0.25,  
+        else 1,  
         type=float,
         help="The scale to run the detection at, default is 0.25",
     )
@@ -54,7 +56,8 @@ def main():
         # Set it to the env VIEW_SCALE if it isn't blank, otherwise set it to 0.75
         default=os.environ["VIEW_SCALE"]
         if "VIEW_SCALE" in os.environ and os.environ["VIEW_SCALE"] != ""
-        else 0.75,  # noqa: E501
+        # else 0.75,  
+        else 1,  
         type=float,
         help="The scale to view the detection at, default is 0.75",
     )
@@ -77,6 +80,15 @@ def main():
         help="The object(s) to detect. Must be something the model is trained to detect",
     )
 
+    argparser.add_argument(
+        "--faces-directory",
+        default=os.environ["FACES_DIRECTORY"]
+        if "FACES_DIRECTORY" in os.environ and os.environ["FACES_DIRECTORY"] != ""
+        else "faces",
+        type=str,
+        help="The directory to store the faces. Should contain 1 subdirectory of images per person",
+    )
+    
     stream_source = argparser.add_mutually_exclusive_group()
     stream_source.add_argument(
         "--url",
@@ -94,6 +106,10 @@ def main():
         type=int,
         help="The capture device to use. Can also be a url.",
     )
+
+    # Defaults for the stuff here and down are already set in notify.py. 
+    # Setting them here just means that argparse will display the default values as defualt
+    # TODO: Perhaps just remove the default parameter and just add to the help message that the default is set is x
 
     notifcation_services = argparser.add_argument_group("Notification Services")
     notifcation_services.add_argument(
@@ -177,19 +193,39 @@ def main():
         for i, r in enumerate(results):
             # list of dicts with each dict containing a label, x1, y1, x2, y2
             plot_boxes = []
+
+            # The following is stuff for people
+            # This is still in the for loop as each result, no matter if anything is detected, will be present.
+            # Thus, there will always be one result (r)
+            if face_details := utils.recognize_face(path_to_directory=Path(args.faces_directory), run_frame=run_frame):
+                plot_boxes.append( face_details  )
+                objects_and_peoples=notify.thing_detected(
+                    thing_name=face_details["label"],
+                    objects_and_peoples=objects_and_peoples,
+                    detection_type="peoples",
+                    detection_window=args.detection_window,
+                    detection_duration=args.detection_duration,
+                    notification_window=args.notification_window,
+                    ntfy_url=args.ntfy_url,
+                )
+
+
+
+
+            # The following is stuff for objects
             # Setup dictionary of object names
-            if not object_names:
+            if objects_and_peoples["objects"] == {} or objects_and_peoples["objects"] is None:
                 for name in r.names.values():
-                    object_names[name] = {
+                    objects_and_peoples["objects"][name] = {
                         "last_detection_time": None,
                         "detection_duration": None,
                         # "first_detection_time": None,
                         "last_notification_time": None,
                     }
-                # Also, make sure that the objects to detect are in the list of object_names
+                # Also, make sure that the objects to detect are in the list of objects_and_peoples
                 # If it isn't, print a warning
                 for obj in args.detect_object:
-                    if obj not in object_names:
+                    if obj not in objects_and_peoples:
                         print(
                             f"Warning: {obj} is not in the list of objects the model can detect!"
                         )
@@ -228,79 +264,18 @@ def main():
                     }
                 )
 
-                # End goal: Send a notification when an object has been detected for 2 seconds in the past 15 seconds.
-                # However, don't send a notification if the last notification was less than 15 seconds ago
+                objects_and_peoples=notify.thing_detected(
+                    thing_name=class_id,
+                    objects_and_peoples=objects_and_peoples,
+                    detection_type="objects",
+                    detection_window=args.detection_window,
+                    detection_duration=args.detection_duration,
+                    notification_window=args.notification_window,
+                    ntfy_url=args.ntfy_url,
+                )
 
-                # (re)start cycle
-                if (
-                    # If the object has not been detected before
-                    object_names[class_id]["last_detection_time"] is None
-                    # If the last detection was more than 15 seconds ago
-                    or time.time() - object_names[class_id]["last_detection_time"]
-                    > args.detection_window
-                ):
-                    # Set the last detection time to now
-                    object_names[class_id]["last_detection_time"] = time.time()
-                    print(f"First detection of {class_id} in this detection window")
-                    # This line is important. It resets the detection duration when the object hasn't been detected for a while
-                    # If detection duration is None, don't print anything.
-                    # Otherwise, print that the detection duration is being reset due to inactivity
-                    if object_names[class_id]["detection_duration"] is not None:
-                        print(
-                            f"Resetting detection duration for {class_id} since it hasn't been detected for {args.detection_window} seconds"  # noqa: E501
-                        )
-                    object_names[class_id]["detection_duration"] = 0
-                else:
-                    # Check if the last notification was less than 15 seconds ago
-                    # If it was, then don't do anything
-                    if (
-                        time.time() - object_names[class_id]["last_detection_time"]
-                        <= args.notification_window
-                    ):
-                        pass
-                    # If it was more than 15 seconds ago, reset the detection duration
-                    # This effectively resets the notification timer
-                    else:
-                        print("Notification timer has expired - resetting")
-                        object_names[class_id]["detection_duration"] = 0
-                    object_names[class_id]["detection_duration"] += (
-                        time.time() - object_names[class_id]["last_detection_time"]
-                    )
-                    # print("Updating detection duration")
-                    object_names[class_id]["last_detection_time"] = time.time()
-
-                # (re)send notification
-                # Check if detection has been ongoing for 2 seconds or more in the past 15 seconds
-                if (
-                    object_names[class_id]["detection_duration"]
-                    >= args.detection_duration
-                    and time.time() - object_names[class_id]["last_detection_time"]
-                    <= args.detection_window
-                ):
-                    # If the last notification was more than 15 seconds ago, then send a notification
-                    if (
-                        object_names[class_id]["last_notification_time"] is None
-                        or time.time()
-                        - object_names[class_id]["last_notification_time"]
-                        > args.notification_window
-                    ):
-                        object_names[class_id]["last_notification_time"] = time.time()
-                        print(
-                            f"Detected {class_id} for {args.detection_duration} seconds"
-                        )
-                        headers = notify.construct_ntfy_headers(
-                            title=f"{class_id} detected",
-                            tag="rotating_light",
-                            priority="default",
-                        )
-                        notify.send_notification(
-                            data=f"{class_id} detected for {args.detection_duration} seconds",
-                            headers=headers,
-                            url=args.ntfy_url,
-                        )
-                        # Reset the detection duration
-                        print("Just sent a notification - resetting detection duration")
-                        object_names[class_id]["detection_duration"] = 0
+            # TODO: On 10-14-2023, while testing, it seemed the bounding box was too low. Troubleshoot if it's a plotting problem.
+            # To do so, use r.plot() to cross reference the bounding box drawn by the plot_label function and r.plot()
             frame_to_show = utils.plot_label(
                 boxes=plot_boxes,
                 full_frame=frame,
@@ -322,5 +297,5 @@ def main():
     video_capture.release()
     cv2.destroyAllWindows()
 
-
-main()
+if __name__ == "__main__":
+    main()

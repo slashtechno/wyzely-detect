@@ -1,57 +1,35 @@
 [tool.poetry]
-name = "set-detect-notify"
+name = "set_detect_notify"
 version = "0.1.0"
 description = "Detect all the things"
 authors = ["slashtechno <77907286+slashtechno@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "set-detect-notify"}]
+packages = [{include = "set_detect_notify"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+# python = "^3.10"
+python = ">=3.10, <3.12"
 python-dotenv = "^1.0.0"
 httpx = "^0.25.0"
 opencv-python = "^4.8.1.78"
 ultralytics = "^8.0.190"
 hjson = "^3.1.0"
 numpy = "^1.23.2"
-# torch = [
-#   { version = "^2.0.0+cu118", source = "torch_cu118", markers = "extra=='cuda'" },
-#   { version = "^2.0.0+cpu", source = "torch_cpu", markers = "extra!='cuda'" },
-# ]
-# torchaudio = [
-#   { version = "^2.0.0+cu118", source = "torch_cu118", markers = "extra=='cuda'" },
-#   { version = "^2.0.0+cpu", source = "torch_cpu", markers = "extra!='cuda'" },
-# ]
-# torchvision = [
-#   { version = "^0.15+cu118", source = "torch_cu118", markers = "extra=='cuda'" },
-#   { version = "^0.15+cpu", source = "torch_cpu", markers = "extra!='cuda'" },
-# ]
+
+# https://github.com/python-poetry/poetry/issues/6409
 torch = "^2.1.0"
+
+tensorflow-io-gcs-filesystem = "0.31.0"
+deepface = "^0.0.79"
 
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
 ruff = "^0.0.291"
 ipykernel = "^6.25.2"
+nbconvert = "^7.9.2"
 
-
-# [[tool.poetry.source]]
-# name = "torch_cpu"
-# url = "https://download.pytorch.org/whl/cpu"
-# priority = "supplemental"
-# 
-# [[tool.poetry.source]]
-# name = "torch_cu118"
-# url = "https://download.pytorch.org/whl/cu118"
-# priority = "supplemental"
-# 
-# [tool.poetry.extras]
-# cuda = []
-# 
-# [[tool.poetry.source]]
-# name = "PyPI"
-# priority = "primary"
 
 [build-system]
 requires = ["poetry-core"]
@@ -60,4 +38,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 # More than the default (88) of `black` to make comments less of a headache
-line-length = 120
+# Where possible, `black` will attempt to format to 88 characters
+# However, setting ruff to 135 will allow for longer lines that can't be auto-formatted
+line-length = 135
+
+[tool.poetry.scripts]
+set-detect-notify = "set_detect_notify.__main__:main"
