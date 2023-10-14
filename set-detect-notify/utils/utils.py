@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
-
+from pathlib import Path
+from deepface import DeepFace
 
 def plot_label(
     # list of dicts with each dict containing a label, x1, y1, x2, y2
@@ -55,3 +56,57 @@ def plot_label(
             1,
         )
     return view_frame
+
+
+def recognize_face(
+        path_to_directory: Path = Path("faces"),
+        # opencv image
+        run_frame: np.ndarray = None,
+) -> np.ndarray:
+    '''
+    Accepts a path to a directory of images of faces to be used as a refference
+    In addition, accepts an opencv image to be used as the frame to be searched
+    
+    Returns a list of dictionaries, containing a single dictonary as currently only 1 face can be detected in each frame
+    dict contains the following keys: label, x1, y1, x2, y2
+    The directory should be structured as follows:
+    faces/
+        name/
+            image1.jpg
+            image2.jpg
+            image3.jpg
+        name2/
+            image1.jpg
+            image2.jpg
+            image3.jpg
+    (not neccessarily jpgs, but you get the idea)
+
+    Point is, `name` is the name of the person in the images in the directory `name`
+    That name will be used as the label for the face in the frame
+    '''
+    # face_dataframes is a vanilla list of dataframes
+    face_dataframes = DeepFace.find(run_frame, db_path=str(path_to_directory))
+    # Iteate over the dataframes
+    for df in face_dataframes:
+        # The last row is the highest confidence
+        # So we can just grab the path from there
+        # iloc = Integer LOCation
+        path_to_image = Path(df.iloc[-1]["identity"])
+        # Get the name of the parent directory
+        label = path_to_image.parent.name
+        # Return the coordinates of the box in xyxy format, rather than xywh
+        # This is because YOLO uses xyxy, and that's how plot_label expects 
+        # Also, xyxy is just the top left and bottom right corners of the box
+        coordinates = {
+            "x1": df.iloc[-1]["source_x"],
+            "y1": df.iloc[-1]["source_y"],
+            "x2": df.iloc[-1]["source_x"] + df.iloc[-1]["source_w"],
+            "y2": df.iloc[-1]["source_y"] + df.iloc[-1]["source_h"],
+        }
+        
+        return [dict(label=label, **coordinates)]
+
+    '''
+    Example dataframe, for reference
+    identity  (path to image) | source_x | source_y | source_w | source_h | VGG-Face_cosine (pretty much the confidence \_('_')_/) 
+    '''

@@ -38,4 +38,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 # More than the default (88) of `black` to make comments less of a headache
-line-length = 120
+# Where possible, `black` will attempt to format to 88 characters
+# However, setting ruff to 135 will allow for longer lines that can't be auto-formatted
+line-length = 135
