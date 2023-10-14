@@ -46,7 +46,8 @@ def main():
         # Set it to the env RUN_SCALE if it isn't blank, otherwise set it to 0.25
         default=os.environ["RUN_SCALE"]
         if "RUN_SCALE" in os.environ and os.environ["RUN_SCALE"] != ""
-        else 0.25,  # noqa: E501
+        # else 0.25,  
+        else 1,  
         type=float,
         help="The scale to run the detection at, default is 0.25",
     )
@@ -55,7 +56,8 @@ def main():
         # Set it to the env VIEW_SCALE if it isn't blank, otherwise set it to 0.75
         default=os.environ["VIEW_SCALE"]
         if "VIEW_SCALE" in os.environ and os.environ["VIEW_SCALE"] != ""
-        else 0.75,  # noqa: E501
+        # else 0.75,  
+        else 1,  
         type=float,
         help="The scale to view the detection at, default is 0.75",
     )
@@ -191,6 +193,26 @@ def main():
         for i, r in enumerate(results):
             # list of dicts with each dict containing a label, x1, y1, x2, y2
             plot_boxes = []
+
+            # The following is stuff for people
+            # This is still in the for loop as each result, no matter if anything is detected, will be present.
+            # Thus, there will always be one result (r)
+            if face_details := utils.recognize_face(path_to_directory=Path(args.faces_directory), run_frame=run_frame):
+                plot_boxes.append( face_details  )
+                objects_and_peoples=notify.thing_detected(
+                    thing_name=face_details["label"],
+                    objects_and_peoples=objects_and_peoples,
+                    detection_type="peoples",
+                    detection_window=args.detection_window,
+                    detection_duration=args.detection_duration,
+                    notification_window=args.notification_window,
+                    ntfy_url=args.ntfy_url,
+                )
+
+
+
+
+            # The following is stuff for objects
             # Setup dictionary of object names
             if objects_and_peoples["objects"] == {} or objects_and_peoples["objects"] is None:
                 for name in r.names.values():

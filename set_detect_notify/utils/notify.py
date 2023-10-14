@@ -44,42 +44,51 @@ def thing_detected(
     respective_type = objects_and_peoples[detection_type]
 
     # (re)start cycle
-    if (
-        # If the object has not been detected before
-        respective_type[thing_name]["last_detection_time"] is None
-        # If the last detection was more than 15 seconds ago
-        or time.time() - respective_type[thing_name]["last_detection_time"]
-        > detection_window
-    ):
-        # Set the last detection time to now
-        respective_type[thing_name]["last_detection_time"] = time.time()
-        print(f"First detection of {thing_name} in this detection window")
-        # This line is important. It resets the detection duration when the object hasn't been detected for a while
-        # If detection duration is None, don't print anything.
-        # Otherwise, print that the detection duration is being reset due to inactivity
-        if respective_type[thing_name]["detection_duration"] is not None:
-            print(
-                f"Resetting detection duration for {thing_name} since it hasn't been detected for {detection_window} seconds"  # noqa: E501
-            )
-        respective_type[thing_name]["detection_duration"] = 0
-    else:
-        # Check if the last notification was less than 15 seconds ago
-        # If it was, then don't do anything
+    try:
         if (
-            time.time() - respective_type[thing_name]["last_detection_time"]
-            <= notification_window
+            # If the object has not been detected before
+            respective_type[thing_name]["last_detection_time"] is None
+            # If the last detection was more than 15 seconds ago
+            or time.time() - respective_type[thing_name]["last_detection_time"]
+            > detection_window
         ):
-            pass
-        # If it was more than 15 seconds ago, reset the detection duration
-        # This effectively resets the notification timer
-        else:
-            print("Notification timer has expired - resetting")
+            # Set the last detection time to now
+            respective_type[thing_name]["last_detection_time"] = time.time()
+            print(f"First detection of {thing_name} in this detection window")
+            # This line is important. It resets the detection duration when the object hasn't been detected for a while
+            # If detection duration is None, don't print anything.
+            # Otherwise, print that the detection duration is being reset due to inactivity
+            if respective_type[thing_name]["detection_duration"] is not None:
+                print(
+                    f"Resetting detection duration for {thing_name} since it hasn't been detected for {detection_window} seconds"  # noqa: E501
+                )
             respective_type[thing_name]["detection_duration"] = 0
-        respective_type[thing_name]["detection_duration"] += (
-            time.time() - respective_type[thing_name]["last_detection_time"]
-        )
-        # print("Updating detection duration")
-        respective_type[thing_name]["last_detection_time"] = time.time()
+        else:
+            # Check if the last NOTIFICATION was less than 15 seconds ago
+            # If it was, then don't do anything
+            if (
+                time.time() - respective_type[thing_name]["last_detection_time"]
+                <= notification_window
+            ):
+                pass
+            # If it was more than 15 seconds ago, reset the detection duration
+            # This effectively resets the notification timer
+            else:
+                print("Notification timer has expired - resetting")
+                respective_type[thing_name]["detection_duration"] = 0
+            respective_type[thing_name]["detection_duration"] += (
+                time.time() - respective_type[thing_name]["last_detection_time"]
+            )
+            # print("Updating detection duration")
+            respective_type[thing_name]["last_detection_time"] = time.time()
+    except KeyError:
+        # If the object has not been detected before
+        respective_type[thing_name] = {
+            "last_detection_time": time.time(),
+            "detection_duration": 0,
+            "last_notification_time": None,
+        }
+        print(f"First detection of {thing_name} ever")
 
     # (re)send notification
     # Check if detection has been ongoing for 2 seconds or more in the past 15 seconds

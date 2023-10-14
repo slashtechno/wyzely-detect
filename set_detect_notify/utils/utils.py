@@ -3,6 +3,8 @@ import numpy as np
 from pathlib import Path
 from deepface import DeepFace
 
+first_face_try = True
+
 def plot_label(
     # list of dicts with each dict containing a label, x1, y1, x2, y2
     boxes: list = None,
@@ -67,7 +69,7 @@ def recognize_face(
     Accepts a path to a directory of images of faces to be used as a refference
     In addition, accepts an opencv image to be used as the frame to be searched
     
-    Returns a list of dictionaries, containing a single dictonary as currently only 1 face can be detected in each frame
+    Returns a single dictonary as currently only 1 face can be detected in each frame
     dict contains the following keys: label, x1, y1, x2, y2
     The directory should be structured as follows:
     faces/
@@ -84,8 +86,23 @@ def recognize_face(
     Point is, `name` is the name of the person in the images in the directory `name`
     That name will be used as the label for the face in the frame
     '''
+    global first_face_try
+
+    # If it's the first time the function is being run, remove representations_vgg_face.pkl, if it exists
+    if first_face_try:
+        try:
+            Path("representations_vgg_face.pkl").unlink()
+            print("Removing representations_vgg_face.pkl")
+        except FileNotFoundError:
+            pass
+        first_face_try = False
+
     # face_dataframes is a vanilla list of dataframes
-    face_dataframes = DeepFace.find(run_frame, db_path=str(path_to_directory))
+    try:
+        face_dataframes = DeepFace.find(run_frame, db_path=str(path_to_directory), enforce_detection=True, silent=True)
+    except ValueError as e:
+        if str(e) == "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.":
+            return None
     # Iteate over the dataframes
     for df in face_dataframes:
         # The last row is the highest confidence
@@ -103,8 +120,12 @@ def recognize_face(
             "x2": df.iloc[-1]["source_x"] + df.iloc[-1]["source_w"],
             "y2": df.iloc[-1]["source_y"] + df.iloc[-1]["source_h"],
         }
-        
-        return [dict(label=label, **coordinates)]
+        distance = df.iloc[-1]["VGG-Face_cosine"]
+        # if 0.5 < distance < 0.7:
+            # label = "Unknown"
+        to_return = dict(label=label, **coordinates)
+        print(f'Confindence: {distance}, filname: {path_to_image.name}, to_return: {to_return}')
+        return to_return
 
     '''
     Example dataframe, for reference
