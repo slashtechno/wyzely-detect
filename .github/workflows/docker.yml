@@ -21,6 +21,11 @@ jobs:
       packages: write
 
     steps:
+        # Free up ~10 GB of space
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Checkout repository
         uses: actions/checkout@v3
 
