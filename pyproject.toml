@@ -18,7 +18,7 @@ hjson = "^3.1.0"
 numpy = "^1.23.2"
 
 # https://github.com/python-poetry/poetry/issues/6409
-torch = "^2.1.0"
+torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 
 tensorflow-io-gcs-filesystem = "0.31.0"
 deepface = "^0.0.79"

@@ -63,6 +63,15 @@ def main():
     )
 
     argparser.add_argument(
+        "--no-display",
+        default=os.environ["NO_DISPLAY"]
+        if "NO_DISPLAY" in os.environ and os.environ["NO_DISPLAY"] != ""
+        else False,
+        action="store_true",
+        help="Don't display the video feed",
+    )
+
+    argparser.add_argument(
         "--confidence-threshold",
         default=os.environ["CONFIDENCE_THRESHOLD"]
         if "CONFIDENCE_THRESHOLD" in os.environ
@@ -73,20 +82,19 @@ def main():
     )
 
     argparser.add_argument(
-        "--detect-object",
-        nargs="*",
-        default=[],
-        type=str,
-        help="The object(s) to detect. Must be something the model is trained to detect",
-    )
-
-    argparser.add_argument(
         "--faces-directory",
         default=os.environ["FACES_DIRECTORY"]
         if "FACES_DIRECTORY" in os.environ and os.environ["FACES_DIRECTORY"] != ""
         else "faces",
         type=str,
         help="The directory to store the faces. Should contain 1 subdirectory of images per person",
+    )
+    argparser.add_argument(
+        "--detect-object",
+        nargs="*",
+        default=[],
+        type=str,
+        help="The object(s) to detect. Must be something the model is trained to detect",
     )
 
     stream_source = argparser.add_mutually_exclusive_group()
@@ -287,7 +295,8 @@ def main():
 
             # Display the resulting frame
             # cv2.imshow("", r)
-            cv2.imshow(f"Video{i}", frame_to_show)
+            if not args.no_display:
+                cv2.imshow(f"Video{i}", frame_to_show)
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord("q"):
