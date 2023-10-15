@@ -1,2 +1,8 @@
 .env
 config/
+using_yolov8.ipynb
+yolov8n.pt
+.venv/
+__pycache__/
+faces/*
+!faces/.gitkeep

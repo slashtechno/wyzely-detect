@@ -6,19 +6,21 @@ services:
         container_name: bridge-wyze
         restart: unless-stopped
         image: mrlt8/wyze-bridge:latest
-        ports:
-            - 1935:1935 # RTMP
-            - 8554:8554 # RTSP
-            - 8888:8888 # HLS
-            - 5000:5000 # WEB-UI
+        # I think we can remove the ports, since we're using the network
+        # Just an unnecesary security risk
+        # ports:
+        #     - 1935:1935 # RTMP
+        #     - 8554:8554 # RTSP (this is really the only one we need)
+        #     - 8888:8888 # HLS
+        #     - 5000:5000 # WEB-UI
         environment:
             - WYZE_EMAIL=${WYZE_EMAIL} # Replace with wyze email 
             - WYZE_PASSWORD=${WYZE_PASSWORD} # Replace with wyze password
         networks:
             all:
-              aliases:
-                - bridge
-                - wyze-bridge
+              # aliases:
+              #   - bridge
+              #   - wyze-bridge
     ntfy:
       image: binwiederhier/ntfy
       container_name: ntfy-wyze
@@ -36,29 +38,34 @@ services:
         all:
     facial_recognition:
       container_name: face-recognition-wyze
-      restart: unless-stopped
-      image: ghcr.io/slashtechno/wyze_face_recognition:latest
+      restart: unless-stopped 
+      # image: ghcr.io/slashtechno/wyze_face_recognition:latest
+      build:
+        context: .
+        dockerfile: Dockerfile
       volumes:
-        # ./config is mounted as /app/config
-        - ./config:/app/config
+        - ./faces:/app/faces
       networks:
         all:
       environment:
-        - RUN_BY_COMPOSE=true
+        - URL=rtsp://bridge:8554/cv
+        - NO_DISPLAY=true
+        - NTFY_URL=http://ntfy:80/set-detect-notify
       depends_on:
         - bridge
+
       # Use curl to check if the rtsp stream is up, then run the face recognition
-      command: >
-        /bin/sh -c "
-        while true; do
-          curl -s http://bridge:8888/cv/0.m3u8 > /dev/null
-          if [ $? -eq 0 ]; then
-            echo 'Stream is up, running face recognition'
-            python3 /app/main.py
-          else
-            echo 'Stream is down, waiting 5 seconds'
-            sleep 5
-          fi
-        done
-        "
+      # command: >
+      #   /bin/sh -c "
+      #   while true; do
+      #     curl -s http://bridge:8888/cv/0.m3u8 > /dev/null
+      #     if [ $? -eq 0 ]; then
+      #       echo 'Stream is up, running face recognition'
+      #       python3 /app/main.py
+      #     else
+      #       echo 'Stream is down, waiting 5 seconds'
+      #       sleep 5
+      #     fi
+      #   done
+      #   "
       tty: true
