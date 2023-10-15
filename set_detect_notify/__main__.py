@@ -46,8 +46,8 @@ def main():
         # Set it to the env RUN_SCALE if it isn't blank, otherwise set it to 0.25
         default=os.environ["RUN_SCALE"]
         if "RUN_SCALE" in os.environ and os.environ["RUN_SCALE"] != ""
-        # else 0.25,  
-        else 1,  
+        # else 0.25,
+        else 1,
         type=float,
         help="The scale to run the detection at, default is 0.25",
     )
@@ -56,8 +56,8 @@ def main():
         # Set it to the env VIEW_SCALE if it isn't blank, otherwise set it to 0.75
         default=os.environ["VIEW_SCALE"]
         if "VIEW_SCALE" in os.environ and os.environ["VIEW_SCALE"] != ""
-        # else 0.75,  
-        else 1,  
+        # else 0.75,
+        else 1,
         type=float,
         help="The scale to view the detection at, default is 0.75",
     )
@@ -88,7 +88,7 @@ def main():
         type=str,
         help="The directory to store the faces. Should contain 1 subdirectory of images per person",
     )
-    
+
     stream_source = argparser.add_mutually_exclusive_group()
     stream_source.add_argument(
         "--url",
@@ -107,7 +107,7 @@ def main():
         help="The capture device to use. Can also be a url.",
     )
 
-    # Defaults for the stuff here and down are already set in notify.py. 
+    # Defaults for the stuff here and down are already set in notify.py.
     # Setting them here just means that argparse will display the default values as defualt
     # TODO: Perhaps just remove the default parameter and just add to the help message that the default is set is x
 
@@ -197,9 +197,11 @@ def main():
             # The following is stuff for people
             # This is still in the for loop as each result, no matter if anything is detected, will be present.
             # Thus, there will always be one result (r)
-            if face_details := utils.recognize_face(path_to_directory=Path(args.faces_directory), run_frame=run_frame):
-                plot_boxes.append( face_details  )
-                objects_and_peoples=notify.thing_detected(
+            if face_details := utils.recognize_face(
+                path_to_directory=Path(args.faces_directory), run_frame=run_frame
+            ):
+                plot_boxes.append(face_details)
+                objects_and_peoples = notify.thing_detected(
                     thing_name=face_details["label"],
                     objects_and_peoples=objects_and_peoples,
                     detection_type="peoples",
@@ -209,12 +211,12 @@ def main():
                     ntfy_url=args.ntfy_url,
                 )
 
-
-
-
             # The following is stuff for objects
             # Setup dictionary of object names
-            if objects_and_peoples["objects"] == {} or objects_and_peoples["objects"] is None:
+            if (
+                objects_and_peoples["objects"] == {}
+                or objects_and_peoples["objects"] is None
+            ):
                 for name in r.names.values():
                     objects_and_peoples["objects"][name] = {
                         "last_detection_time": None,
@@ -264,7 +266,7 @@ def main():
                     }
                 )
 
-                objects_and_peoples=notify.thing_detected(
+                objects_and_peoples = notify.thing_detected(
                     thing_name=class_id,
                     objects_and_peoples=objects_and_peoples,
                     detection_type="objects",
@@ -274,8 +276,7 @@ def main():
                     ntfy_url=args.ntfy_url,
                 )
 
-            # TODO: On 10-14-2023, while testing, it seemed the bounding box was too low. Troubleshoot if it's a plotting problem.
-            # To do so, use r.plot() to cross reference the bounding box drawn by the plot_label function and r.plot()
+            # To debug plotting, use r.plot() to cross reference the bounding boxes drawn by the plot_label() and r.plot()
             frame_to_show = utils.plot_label(
                 boxes=plot_boxes,
                 full_frame=frame,
@@ -296,6 +297,7 @@ def main():
     print("Releasing video capture")
     video_capture.release()
     cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()
