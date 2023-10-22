@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "wyzely-detect"
-version = "0.1.0"
-description = "Detect all the things"
+version = "0.1.8"
+description = "Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices"
 authors = ["slashtechno <77907286+slashtechno@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
@@ -9,8 +9,7 @@ packages = [{include = "wyzely_detect"}]
 
 [tool.poetry.dependencies]
 
-# As of 10/21/23, Python 3.11 doesn't work (at least on Windows)
-# Seems "^3.10" won't work because of TensorFlow or another library
+# Works on 3.10 and 3.11, at least in my testing
 python = ">=3.10, <3.12"
 
 python-dotenv = "^1.0.0"
@@ -25,6 +24,7 @@ torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 
 # https://stackoverflow.com/a/76477590/18270659
 # https://discuss.tensorflow.org/t/tensorflow-io-gcs-filesystem-with-windows/18849/4
+# Might be able to remove this version constraint later
 tensorflow-io-gcs-filesystem = "0.31.0"
 
 
@@ -47,6 +47,7 @@ build-backend = "poetry.core.masonry.api"
 # Where possible, `black` will attempt to format to 88 characters
 # However, setting ruff to 135 will allow for longer lines that can't be auto-formatted
 line-length = 135
+extend-select= ["FIX002"]
 
 [tool.poetry.scripts]
 wyzely-detect = "wyzely_detect.__main__:main"

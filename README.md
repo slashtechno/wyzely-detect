@@ -1,5 +1,5 @@
 # Wyzely Detect  
-Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your phone (or other devices)  
+Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices  
 
 ### Features  
 - Recognize objects  
@@ -13,22 +13,22 @@ Recognize faces/objects in a video stream (from a webcam or a security camera) a
 ## Prerequisites  
 ### Poetry/Python  
 - Camera, either a webcam or a Wyze Cam  
-    - All RTSP feeds _should_ work, however.
-- Python 
-    - 3.10.5 is confirmed to work and problems have been encountered with 3.11
-- Poetry
-### Docker
+    - All RTSP feeds _should_ work, however.  
+- Python 3.10 or 3.11  
+- Poetry  
+### Docker  
 - A Wyze Cam  
-    - Any other RTSP feed _should_ work, as mentioned above
-- Python
-- Poetry
+    - Any other RTSP feed _should_ work, as mentioned above  
+- Docker
+- Docker Compose
+
 
 ## What's not required  
 - A Wyze subscription  
 
-## Usage    
+## Usage  
 ### Installation  
-1. Clone this repo with `git clone https://github.com/slashtechno/wyze-face-recognition.git`  
+1. Clone this repo with `git clone https://github.com/slashtechno/wyze-face-recognition.git`  <!-- This URL should be changed once the repo is renamed -->  
 2. `cd` into the cloned repository  
 3. Then, either install with [Poetry](https://python-poetry.org/) or run with Docker  
 
@@ -38,7 +38,7 @@ Recognize faces/objects in a video stream (from a webcam or a security camera) a
 
 #### Poetry  
 1. `poetry install`  
-2. `poetry run -- set-detect-notify`  
+2. `poetry run -- wyzely-detect`  
 ### Configuration  
 The following are some basic CLI options. Most flags have environment variable equivalents which can be helpful when using Docker. 
 
