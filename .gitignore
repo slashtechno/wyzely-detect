@@ -2,9 +2,9 @@
 config/
 using_yolov8.ipynb
 yolov8n.pt
-.venv/
+*venv/
 __pycache__/
 faces/*
 !faces/.gitkeep
 dist/
-draft-commit-message.txt
+test.txt

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wyzely-detect"
-version = "0.1.0"
+version = "0.1.9"
 description = "Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices"
 authors = ["slashtechno <77907286+slashtechno@users.noreply.github.com>"]
 license = "MIT"
@@ -29,6 +29,7 @@ tensorflow-io-gcs-filesystem = "0.31.0"
 
 
 deepface = "^0.0.79"
+tensorflow = "^2.14.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"

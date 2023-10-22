@@ -115,8 +115,12 @@ def recognize_face(
         face_dataframes = DeepFace.find(
             run_frame,
             db_path=str(path_to_directory),
-            enforce_detection=True,
+            # enforce_detection=True,
+            # Seems this works?
+            enforce_detection=False,
             silent=True,
+            # Could use VGG-Face, but whilst fixing another issue, ArcFace seemed to be slightly faster
+            # I read somewhere that opencv is the fastest (but not as accurate). Could be changed later, but opencv seems to work well
             model_name="ArcFace", detector_backend="opencv"
             )
     except ValueError as e:

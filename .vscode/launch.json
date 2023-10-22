@@ -10,7 +10,8 @@
             "type": "python",
             "request": "launch",
             "module": "wyzely_detect",
-            "justMyCode": true
+            // "justMyCode": true
+            "justMyCode": false
         }
     ]
 }
