@@ -102,11 +102,10 @@ def recognize_face(
             print("representations_arcface.pkl does not exist")
         first_face_try = False
 
-
     # face_dataframes is a vanilla list of dataframes
     # It seems face_dataframes is empty if the face database (directory) doesn't exist. Seems to work if it's empty though
     # This line is here to prevent a crash if that happens. However, there is a check in __main__ so it shouldn't happen
-    face_dataframes = [] 
+    face_dataframes = []
     try:
         face_dataframes = DeepFace.find(
             run_frame,
@@ -117,12 +116,13 @@ def recognize_face(
             silent=True,
             # Could use VGG-Face, but whilst fixing another issue, ArcFace seemed to be slightly faster
             # I read somewhere that opencv is the fastest (but not as accurate). Could be changed later, but opencv seems to work well
-            model_name="ArcFace", detector_backend="opencv"
-            )
+            model_name="ArcFace",
+            detector_backend="opencv",
+        )
     except ValueError as e:
         if (
             str(e)
-            == "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False." # noqa: E501
+            == "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False."  # noqa: E501
         ):
             # print("No faces recognized") # For debugging
             return None

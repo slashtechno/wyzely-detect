@@ -37,7 +37,7 @@ def main():
     # It's taking up too many lines in this file
     argparser = argparse.ArgumentParser(
         prog="Wyzely Detect",
-        description="Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices", # noqa: E501
+        description="Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices",  # noqa: E501
         epilog=":)",
     )
 
@@ -89,7 +89,7 @@ def main():
         if "FACES_DIRECTORY" in os.environ and os.environ["FACES_DIRECTORY"] != ""
         else "faces",
         type=str,
-        help="The directory to store the faces. Can either contain images or subdirectories with images, the latter being the preferred method", # noqa: E501
+        help="The directory to store the faces. Can either contain images or subdirectories with images, the latter being the preferred method",  # noqa: E501
     )
     argparser.add_argument(
         "--detect-object",
@@ -202,7 +202,7 @@ def main():
         results = model(run_frame, verbose=False)
 
         path_to_faces = Path(args.faces_directory)
-        path_to_faces_exists = path_to_faces.is_dir() 
+        path_to_faces_exists = path_to_faces.is_dir()
 
         for i, r in enumerate(results):
             # list of dicts with each dict containing a label, x1, y1, x2, y2
@@ -216,8 +216,7 @@ def main():
             # May be better to check every iteration, but this also works
             if path_to_faces_exists:
                 if face_details := utils.recognize_face(
-                    path_to_directory=path_to_faces,
-                    run_frame=run_frame
+                    path_to_directory=path_to_faces, run_frame=run_frame
                 ):
                     plot_boxes.append(face_details)
                     objects_and_peoples = notify.thing_detected(
