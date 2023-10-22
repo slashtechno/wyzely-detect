@@ -5,7 +5,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
+            // "name": "Python: Module",
+            "name": "Debug Wyzely Detect",
             "type": "python",
             "request": "launch",
             "module": "wyzely_detect",

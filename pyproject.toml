@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wyzely-detect"
-version = "0.1.8"
+version = "0.1.0"
 description = "Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices"
 authors = ["slashtechno <77907286+slashtechno@users.noreply.github.com>"]
 license = "MIT"
