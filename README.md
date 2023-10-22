@@ -1,5 +1,5 @@
-# Set, Detect, Notify  
-Recognize faces/objects in (Wyze Cam) footage and send notifications to your phone (or other devices)
+# Wyzely Detect  
+Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your phone (or other devices)  
 
 ### Features  
 - Recognize objects  
@@ -14,7 +14,8 @@ Recognize faces/objects in (Wyze Cam) footage and send notifications to your pho
 ### Poetry/Python  
 - Camera, either a webcam or a Wyze Cam  
     - All RTSP feeds _should_ work, however.
-- Python
+- Python 
+    - 3.10.5 is confirmed to work and problems have been encountered with 3.11
 - Poetry
 ### Docker
 - A Wyze Cam  

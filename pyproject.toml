@@ -1,15 +1,18 @@
 [tool.poetry]
-name = "set_detect_notify"
+name = "wyzely-detect"
 version = "0.1.0"
 description = "Detect all the things"
 authors = ["slashtechno <77907286+slashtechno@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "set_detect_notify"}]
+packages = [{include = "wyzely_detect"}]
 
 [tool.poetry.dependencies]
-# python = "^3.10"
+
+# As of 10/21/23, Python 3.11 doesn't work (at least on Windows)
+# Seems "^3.10" won't work because of TensorFlow or another library
 python = ">=3.10, <3.12"
+
 python-dotenv = "^1.0.0"
 httpx = "^0.25.0"
 opencv-python = "^4.8.1.78"
@@ -20,9 +23,12 @@ numpy = "^1.23.2"
 # https://github.com/python-poetry/poetry/issues/6409
 torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 
+# https://stackoverflow.com/a/76477590/18270659
+# https://discuss.tensorflow.org/t/tensorflow-io-gcs-filesystem-with-windows/18849/4
 tensorflow-io-gcs-filesystem = "0.31.0"
-deepface = "^0.0.79"
 
+
+deepface = "^0.0.79"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
@@ -43,4 +49,4 @@ build-backend = "poetry.core.masonry.api"
 line-length = 135
 
 [tool.poetry.scripts]
-set-detect-notify = "set_detect_notify.__main__:main"
+wyzely-detect = "wyzely_detect.__main__:main"

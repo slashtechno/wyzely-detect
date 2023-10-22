@@ -6,3 +6,5 @@ yolov8n.pt
 __pycache__/
 faces/*
 !faces/.gitkeep
+dist/
+draft-commit-message.txt

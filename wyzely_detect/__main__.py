@@ -205,6 +205,7 @@ def main():
             # The following is stuff for people
             # This is still in the for loop as each result, no matter if anything is detected, will be present.
             # Thus, there will always be one result (r)
+            # TODO: Make it so this only runs if the faces directory is not empty
             if face_details := utils.recognize_face(
                 path_to_directory=Path(args.faces_directory), run_frame=run_frame
             ):

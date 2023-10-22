@@ -102,6 +102,7 @@ def recognize_face(
         first_face_try = False
 
     # face_dataframes is a vanilla list of dataframes
+    face_dataframes = []
     try:
         face_dataframes = DeepFace.find(
             run_frame,
