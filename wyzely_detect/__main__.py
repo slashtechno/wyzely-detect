@@ -33,9 +33,11 @@ def main():
     else:
         print("No .env file found")
 
+    # TODO: If possible, move the argparse stuff to a separate file
+    # It's taking up too many lines in this file
     argparser = argparse.ArgumentParser(
-        prog="Detect It",
-        description="Detect it all!",
+        prog="Wyzely Detect",
+        description="Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices",  # noqa: E501
         epilog=":)",
     )
 
@@ -87,7 +89,7 @@ def main():
         if "FACES_DIRECTORY" in os.environ and os.environ["FACES_DIRECTORY"] != ""
         else "faces",
         type=str,
-        help="The directory to store the faces. Should contain 1 subdirectory of images per person",
+        help="The directory to store the faces. Can either contain images or subdirectories with images, the latter being the preferred method",  # noqa: E501
     )
     argparser.add_argument(
         "--detect-object",
@@ -118,13 +120,13 @@ def main():
     # Defaults for the stuff here and down are already set in notify.py.
     # Setting them here just means that argparse will display the default values as defualt
     # TODO: Perhaps just remove the default parameter and just add to the help message that the default is set is x
-
+    # TODO: Make ntfy optional in ntfy.py. Currently, unless there is a local or LAN instance of ntfy, this can't run offline
     notifcation_services = argparser.add_argument_group("Notification Services")
     notifcation_services.add_argument(
         "--ntfy-url",
         default=os.environ["NTFY_URL"]
         if "NTFY_URL" in os.environ and os.environ["NTFY_URL"] != ""
-        else "https://ntfy.sh/set-detect-notify",
+        else "https://ntfy.sh/wyzely-detect",
         type=str,
         help="The URL to send notifications to",
     )
@@ -158,7 +160,7 @@ def main():
 
     args = argparser.parse_args()
 
-    # Check if a CUDA GPU is available. If it is, set it via torch. Ff not, set it to cpu
+    # Check if a CUDA GPU is available. If it is, set it via torch. If not, set it to cpu
     # https://github.com/ultralytics/ultralytics/issues/3084#issuecomment-1732433168
     # Currently, I have been unable to set up Poetry to use GPU for Torch
     for i in range(torch.cuda.device_count()):
@@ -198,6 +200,10 @@ def main():
         # view_frame = cv2.resize(frame, (0, 0), fx=args.view_scale, fy=args.view_scale)
 
         results = model(run_frame, verbose=False)
+
+        path_to_faces = Path(args.faces_directory)
+        path_to_faces_exists = path_to_faces.is_dir()
+
         for i, r in enumerate(results):
             # list of dicts with each dict containing a label, x1, y1, x2, y2
             plot_boxes = []
@@ -205,19 +211,23 @@ def main():
             # The following is stuff for people
             # This is still in the for loop as each result, no matter if anything is detected, will be present.
             # Thus, there will always be one result (r)
-            if face_details := utils.recognize_face(
-                path_to_directory=Path(args.faces_directory), run_frame=run_frame
-            ):
-                plot_boxes.append(face_details)
-                objects_and_peoples = notify.thing_detected(
-                    thing_name=face_details["label"],
-                    objects_and_peoples=objects_and_peoples,
-                    detection_type="peoples",
-                    detection_window=args.detection_window,
-                    detection_duration=args.detection_duration,
-                    notification_window=args.notification_window,
-                    ntfy_url=args.ntfy_url,
-                )
+
+            # Only run if path_to_faces exists
+            # May be better to check every iteration, but this also works
+            if path_to_faces_exists:
+                if face_details := utils.recognize_face(
+                    path_to_directory=path_to_faces, run_frame=run_frame
+                ):
+                    plot_boxes.append(face_details)
+                    objects_and_peoples = notify.thing_detected(
+                        thing_name=face_details["label"],
+                        objects_and_peoples=objects_and_peoples,
+                        detection_type="peoples",
+                        detection_window=args.detection_window,
+                        detection_duration=args.detection_duration,
+                        notification_window=args.notification_window,
+                        ntfy_url=args.ntfy_url,
+                    )
 
             # The following is stuff for objects
             # Setup dictionary of object names

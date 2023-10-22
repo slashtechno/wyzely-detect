@@ -74,6 +74,7 @@ def recognize_face(
     In addition, accepts an opencv image to be used as the frame to be searched
 
     Returns a single dictonary as currently only 1 face can be detected in each frame
+    Cosine threshold is 0.3, so if the confidence is less than that, it will return None
     dict contains the following keys: label, x1, y1, x2, y2
     The directory should be structured as follows:
     faces/
@@ -92,37 +93,52 @@ def recognize_face(
     """
     global first_face_try
 
-    # If it's the first time the function is being run, remove representations_vgg_face.pkl, if it exists
+    # If it's the first time the function is being run, remove representations_arcface.pkl, if it exists
     if first_face_try:
         try:
-            Path("representations_vgg_face.pkl").unlink()
-            print("Removing representations_vgg_face.pkl")
+            path_to_directory.joinpath("representations_arcface.pkl").unlink()
+            print("Removing representations_arcface.pkl")
         except FileNotFoundError:
-            pass
+            print("representations_arcface.pkl does not exist")
         first_face_try = False
 
     # face_dataframes is a vanilla list of dataframes
+    # It seems face_dataframes is empty if the face database (directory) doesn't exist. Seems to work if it's empty though
+    # This line is here to prevent a crash if that happens. However, there is a check in __main__ so it shouldn't happen
+    face_dataframes = []
     try:
         face_dataframes = DeepFace.find(
             run_frame,
             db_path=str(path_to_directory),
-            enforce_detection=True,
+            # Problem with enforce_detection=False is that it will always (?) return a face, no matter the confidence
+            # Thus, false-positives need to be filtered out
+            enforce_detection=False,
             silent=True,
+            # Could use VGG-Face, but whilst fixing another issue, ArcFace seemed to be slightly faster
+            # I read somewhere that opencv is the fastest (but not as accurate). Could be changed later, but opencv seems to work well
+            model_name="ArcFace",
+            detector_backend="opencv",
         )
     except ValueError as e:
         if (
             str(e)
-            == "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False."
+            == "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False."  # noqa: E501
         ):
+            # print("No faces recognized") # For debugging
             return None
+        else:
+            raise e
     # Iteate over the dataframes
     for df in face_dataframes:
         # The last row is the highest confidence
         # So we can just grab the path from there
         # iloc = Integer LOCation
         path_to_image = Path(df.iloc[-1]["identity"])
-        # Get the name of the parent directory
-        label = path_to_image.parent.name
+        # If the parent name is the same as the path to the database, then set label to the image name instead of the parent directory name
+        if path_to_image.parent == Path(path_to_directory):
+            label = path_to_image.name
+        else:
+            label = path_to_image.parent.name
         # Return the coordinates of the box in xyxy format, rather than xywh
         # This is because YOLO uses xyxy, and that's how plot_label expects
         # Also, xyxy is just the top left and bottom right corners of the box
@@ -132,9 +148,11 @@ def recognize_face(
             "x2": df.iloc[-1]["source_x"] + df.iloc[-1]["source_w"],
             "y2": df.iloc[-1]["source_y"] + df.iloc[-1]["source_h"],
         }
-        # After some brief testing, it seems positve matches are > 0.3
-        # I have not seen any false positives, so there is no threashold yet
-        distance = df.iloc[-1]["VGG-Face_cosine"]
+        # After some brief testing, it seems positive matches are > 0.3
+        distance = df.iloc[-1]["ArcFace_cosine"]
+        # TODO: Make this a CLI argument
+        if distance < 0.3:
+            return None
         # if 0.5 < distance < 0.7:
         # label = "Unknown"
         to_return = dict(label=label, **coordinates)

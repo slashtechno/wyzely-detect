@@ -32,7 +32,7 @@ def thing_detected(
     detection_window: int = 15,
     detection_duration: int = 2,
     notification_window: int = 15,
-    ntfy_url: str = "https://ntfy.sh/set-detect-notify",
+    ntfy_url: str = "https://ntfy.sh/wyzely-detect",
 ) -> dict:
     """
     A function to make sure 2 seconds of detection is detected in 15 seconds, 15 seconds apart.

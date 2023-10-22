@@ -3,7 +3,7 @@ networks:
     all:
 services:
     bridge:
-        container_name: bridge-wyze
+        container_name: bridge-wyzely-detect
         restart: unless-stopped
         image: mrlt8/wyze-bridge:latest
         # I think we can remove the ports, since we're using the network
@@ -18,12 +18,9 @@ services:
             - WYZE_PASSWORD=${WYZE_PASSWORD} # Replace with wyze password
         networks:
             all:
-              # aliases:
-              #   - bridge
-              #   - wyze-bridge
     ntfy:
       image: binwiederhier/ntfy
-      container_name: ntfy-wyze
+      container_name: ntfy-wyzely-detect
       command:
         - serve
       environment:
@@ -36,10 +33,10 @@ services:
       restart: unless-stopped
       networks:
         all:
-    facial_recognition:
-      container_name: face-recognition-wyze
+    wyzely-detect:
+      container_name: wyzely-detect
       restart: unless-stopped 
-      # image: ghcr.io/slashtechno/wyze_face_recognition:latest
+      # image: ghcr.io/slashtechno/wyzely-detect:latest
       build:
         context: .
         dockerfile: Dockerfile
@@ -50,7 +47,7 @@ services:
       environment:
         - URL=rtsp://bridge:8554/cv
         - NO_DISPLAY=true
-        - NTFY_URL=http://ntfy:80/set-detect-notify
+        - NTFY_URL=http://ntfy:80/wyzely-detect
       depends_on:
         - bridge
 

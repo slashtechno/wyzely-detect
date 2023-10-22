@@ -5,11 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
+            // "name": "Python: Module",
+            "name": "Debug Wyzely Detect",
             "type": "python",
             "request": "launch",
-            "module": "set_detect_notify",
-            "justMyCode": true
+            "module": "wyzely_detect",
+            // "justMyCode": true
+            "justMyCode": false
         }
     ]
 }

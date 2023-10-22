@@ -9,4 +9,4 @@ COPY . .
 
 RUN poetry install
 
-ENTRYPOINT ["poetry", "run", "python", "-m", "set_detect_notify"]
+ENTRYPOINT ["poetry", "run", "python", "-m", "wyzely_detect"]
