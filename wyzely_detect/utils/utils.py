@@ -74,6 +74,7 @@ def recognize_face(
     In addition, accepts an opencv image to be used as the frame to be searched
 
     Returns a single dictonary as currently only 1 face can be detected in each frame
+    Cosine threshold is 0.3, so if the confidence is less than that, it will return None
     dict contains the following keys: label, x1, y1, x2, y2
     The directory should be structured as follows:
     faces/
@@ -101,11 +102,6 @@ def recognize_face(
             print("representations_arcface.pkl does not exist")
         first_face_try = False
 
-    # For debugging
-    # if path_to_directory.joinpath("representations_arcface.pkl").exists():
-    #     print("representations_arcface.pkl exists")
-    # else:
-    #     print("representations_arcface.pkl does not exist")
 
     # face_dataframes is a vanilla list of dataframes
     # It seems face_dataframes is empty if the face database (directory) doesn't exist. Seems to work if it's empty though
@@ -115,8 +111,8 @@ def recognize_face(
         face_dataframes = DeepFace.find(
             run_frame,
             db_path=str(path_to_directory),
-            # enforce_detection=True,
-            # Seems this works?
+            # Problem with enforce_detection=False is that it will always (?) return a face, no matter the confidence
+            # Thus, false-positives need to be filtered out
             enforce_detection=False,
             silent=True,
             # Could use VGG-Face, but whilst fixing another issue, ArcFace seemed to be slightly faster
@@ -152,9 +148,11 @@ def recognize_face(
             "x2": df.iloc[-1]["source_x"] + df.iloc[-1]["source_w"],
             "y2": df.iloc[-1]["source_y"] + df.iloc[-1]["source_h"],
         }
-        # After some brief testing, it seems positve matches are > 0.3
-        # I have not seen any false positives, so there is no threashold yet
+        # After some brief testing, it seems positive matches are > 0.3
         distance = df.iloc[-1]["ArcFace_cosine"]
+        # TODO: Make this a CLI argument
+        if distance < 0.3:
+            return None
         # if 0.5 < distance < 0.7:
         # label = "Unknown"
         to_return = dict(label=label, **coordinates)
