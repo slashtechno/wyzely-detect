@@ -160,7 +160,7 @@ def main():
 
     args = argparser.parse_args()
 
-    # Check if a CUDA GPU is available. If it is, set it via torch. Ff not, set it to cpu
+    # Check if a CUDA GPU is available. If it is, set it via torch. If not, set it to cpu
     # https://github.com/ultralytics/ultralytics/issues/3084#issuecomment-1732433168
     # Currently, I have been unable to set up Poetry to use GPU for Torch
     for i in range(torch.cuda.device_count()):

@@ -28,7 +28,7 @@ Recognize faces/objects in a video stream (from a webcam or a security camera) a
 
 ## Usage  
 ### Installation  
-1. Clone this repo with `git clone https://github.com/slashtechno/wyze-face-recognition.git`  <!-- This URL should be changed once the repo is renamed -->  
+1. Clone this repo with `git clone https://github.com/slashtechno/wyzely-detect`  
 2. `cd` into the cloned repository  
 3. Then, either install with [Poetry](https://python-poetry.org/) or run with Docker  
 
