@@ -98,14 +98,12 @@ def set_argparse():
 
     # Defaults for the stuff here and down are already set in notify.py.
     # Setting them here just means that argparse will display the default values as defualt
-    # TODO: Perhaps just remove the default parameter and just add to the help message that the default is set is x
-    # TODO: Make ntfy optional in ntfy.py. Currently, unless there is a local or LAN instance of ntfy, this can't run offline
     notifcation_services = argparser.add_argument_group("Notification Services")
     notifcation_services.add_argument(
         "--ntfy-url",
         default=os.environ["NTFY_URL"]
         if "NTFY_URL" in os.environ and os.environ["NTFY_URL"] != ""
-        else "https://ntfy.sh/wyzely-detect",
+        else None,
         type=str,
         help="The URL to send notifications to",
     )

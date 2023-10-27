@@ -104,18 +104,23 @@ def thing_detected(
         ):
             respective_type[thing_name]["last_notification_time"] = time.time()
             print(f"Detected {thing_name} for {detection_duration} seconds")
-            headers = construct_ntfy_headers(
-                title=f"{thing_name} detected",
-                tag="rotating_light",
-                priority="default",
-            )
-            send_notification(
-                data=f"{thing_name} detected for {detection_duration} seconds",
-                headers=headers,
-                url=ntfy_url,
-            )
-            # Reset the detection duration
-            print("Just sent a notification - resetting detection duration")
+            if ntfy_url is None:
+                print(
+                    "ntfy_url is None. Not sending notification. Set ntfy_url to send notifications"
+                )
+            else:
+                headers = construct_ntfy_headers(
+                    title=f"{thing_name} detected",
+                    tag="rotating_light",
+                    priority="default",
+                )
+                send_notification(
+                    data=f"{thing_name} detected for {detection_duration} seconds",
+                    headers=headers,
+                    url=ntfy_url,
+                )
+                # Reset the detection duration
+                print("Just sent a notification - resetting detection duration")
             respective_type[thing_name]["detection_duration"] = 0
 
         # Take the aliased objects_and_peoples and update the respective dictionary
