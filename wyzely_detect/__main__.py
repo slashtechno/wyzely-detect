@@ -41,8 +41,8 @@ def main():
 
     # Depending on if the user wants to use a stream or a capture device,
     # Set the video capture to the appropriate source
-    if args.url:
-        video_capture = cv2.VideoCapture(args.url)
+    if args.rtsp_url is not None:
+        video_capture = cv2.VideoCapture(args.rtsp_url)
     else:
         video_capture = cv2.VideoCapture(args.capture_device)
 
