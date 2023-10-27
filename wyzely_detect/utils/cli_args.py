@@ -56,9 +56,9 @@ def set_argparse():
 
     argparser.add_argument(
         "--object-confidence-threshold",
-        default=os.environ["CONFIDENCE_THRESHOLD"]
-        if "CONFIDENCE_THRESHOLD" in os.environ
-        and os.environ["CONFIDENCE_THRESHOLD"] != ""
+        default=os.environ["OBJECT_CONFIDENCE_THRESHOLD"]
+        if "OBJECT_CONFIDENCE_THRESHOLD" in os.environ
+        and os.environ["OBJECT_CONFIDENCE_THRESHOLD"] != ""
         else 0.6,
         type=float,
         help="The confidence threshold to use",
@@ -99,12 +99,12 @@ def set_argparse():
 
     stream_source = argparser.add_mutually_exclusive_group()
     stream_source.add_argument(
-        "--url",
-        default=os.environ["URL"]
-        if "URL" in os.environ and os.environ["URL"] != ""
+        "--rtsp-url",
+        default=os.environ["RTSP_URL"]
+        if "RTSP_URL" in os.environ and os.environ["RTSP_URL"] != ""
         else None,  # noqa: E501
         type=str,
-        help="The URL of the stream to use",
+        help="The RTSP URL to use",
     )
     stream_source.add_argument(
         "--capture-device",
@@ -112,7 +112,7 @@ def set_argparse():
         if "CAPTURE_DEVICE" in os.environ and os.environ["CAPTURE_DEVICE"] != ""
         else 0,  # noqa: E501
         type=int,
-        help="The capture device to use. Can also be a url.",
+        help="The capture device to use",
     )
 
     # Defaults for the stuff here and down are already set in notify.py.
