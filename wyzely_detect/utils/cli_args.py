@@ -20,8 +20,10 @@ def set_argparse():
         epilog=":)",
     )
 
-    # required='RUN_SCALE' not in os.environ,
 
+    # One important thing to consider is that most function parameters are optional and have a default value
+    # However, with argparse, those are never used since a argparse always passes something, even if it's None
+    
     argparser.add_argument(
         "--run-scale",
         # Set it to the env RUN_SCALE if it isn't blank, otherwise set it to 0.25
@@ -53,7 +55,7 @@ def set_argparse():
     )
 
     argparser.add_argument(
-        "--confidence-threshold",
+        "--object-confidence-threshold",
         default=os.environ["CONFIDENCE_THRESHOLD"]
         if "CONFIDENCE_THRESHOLD" in os.environ
         and os.environ["CONFIDENCE_THRESHOLD"] != ""
@@ -61,7 +63,15 @@ def set_argparse():
         type=float,
         help="The confidence threshold to use",
     )
-
+    argparser.add_argument(
+        "--face-confidence-threshold",
+        default=os.environ["FACE_CONFIDENCE_THRESHOLD"]
+        if "FACE_CONFIDENCE_THRESHOLD" in os.environ
+        and os.environ["FACE_CONFIDENCE_THRESHOLD"] != ""
+        else 0.3,
+        type=float,
+        help="The confidence (currently cosine similarity) threshold to use for face recognition",
+    )
     argparser.add_argument(
         "--faces-directory",
         default=os.environ["FACES_DIRECTORY"]

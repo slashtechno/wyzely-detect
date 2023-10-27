@@ -68,6 +68,7 @@ def recognize_face(
     path_to_directory: Path = Path("faces"),
     # opencv image
     run_frame: np.ndarray = None,
+    min_confidence: float = 0.3,
 ) -> np.ndarray:
     """
     Accepts a path to a directory of images of faces to be used as a refference
@@ -149,15 +150,13 @@ def recognize_face(
             "y2": df.iloc[-1]["source_y"] + df.iloc[-1]["source_h"],
         }
         # After some brief testing, it seems positive matches are > 0.3
-        distance = df.iloc[-1]["ArcFace_cosine"]
-        # TODO: Make this a CLI argument
-        if distance < 0.3:
+        cosine_similarity = df.iloc[-1]["ArcFace_cosine"]
+        if cosine_similarity < min_confidence:
             return None
-        # if 0.5 < distance < 0.7:
         # label = "Unknown"
         to_return = dict(label=label, **coordinates)
         print(
-            f"Confindence: {distance}, filname: {path_to_image.name}, to_return: {to_return}"
+            f"Cosine similarity: {cosine_similarity}, filname: {path_to_image.name}, to_return: {to_return}"
         )
         return to_return
 

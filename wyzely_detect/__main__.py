@@ -83,7 +83,7 @@ def main():
             # May be better to check every iteration, but this also works
             if path_to_faces_exists:
                 if face_details := utils.recognize_face(
-                    path_to_directory=path_to_faces, run_frame=run_frame
+                    path_to_directory=path_to_faces, run_frame=run_frame, min_confidence=args.face_confidence_threshold
                 ):
                     plot_boxes.append(face_details)
                     objects_and_peoples = notify.thing_detected(
@@ -132,7 +132,7 @@ def main():
                 # print("---")
 
                 # Now do stuff (if conf > 0.5)
-                if conf < args.confidence_threshold or (
+                if conf < args.object_confidence_threshold or (
                     class_id not in args.detect_object and args.detect_object != []
                 ):
                     # If the confidence is too low
