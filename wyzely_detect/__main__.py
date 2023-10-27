@@ -24,7 +24,6 @@ def main():
     global args
     # RUN_BY_COMPOSE = os.getenv("RUN_BY_COMPOSE") # Replace this with code to check for gpu
 
-
     args = argparser.parse_args()
 
     # Check if a CUDA GPU is available. If it is, set it via torch. If not, set it to cpu
@@ -83,7 +82,10 @@ def main():
             # May be better to check every iteration, but this also works
             if path_to_faces_exists:
                 if face_details := utils.recognize_face(
-                    path_to_directory=path_to_faces, run_frame=run_frame, min_confidence=args.face_confidence_threshold
+                    path_to_directory=path_to_faces,
+                    run_frame=run_frame,
+                    min_confidence=args.face_confidence_threshold,
+                    no_remove_representations=args.no_remove_representations,
                 ):
                     plot_boxes.append(face_details)
                     objects_and_peoples = notify.thing_detected(

@@ -69,6 +69,7 @@ def recognize_face(
     # opencv image
     run_frame: np.ndarray = None,
     min_confidence: float = 0.3,
+    no_remove_representations: bool = False,
 ) -> np.ndarray:
     """
     Accepts a path to a directory of images of faces to be used as a refference
@@ -95,12 +96,15 @@ def recognize_face(
     global first_face_try
 
     # If it's the first time the function is being run, remove representations_arcface.pkl, if it exists
-    if first_face_try:
+    if first_face_try and not no_remove_representations:
         try:
             path_to_directory.joinpath("representations_arcface.pkl").unlink()
             print("Removing representations_arcface.pkl")
         except FileNotFoundError:
             print("representations_arcface.pkl does not exist")
+        first_face_try = False
+    elif first_face_try and no_remove_representations:
+        print("Not attempting to remove representations_arcface.pkl")
         first_face_try = False
 
     # face_dataframes is a vanilla list of dataframes

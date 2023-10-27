@@ -5,6 +5,7 @@ from pathlib import Path
 
 argparser = None
 
+
 def set_argparse():
     global argparser
 
@@ -20,10 +21,9 @@ def set_argparse():
         epilog=":)",
     )
 
-
     # One important thing to consider is that most function parameters are optional and have a default value
     # However, with argparse, those are never used since a argparse always passes something, even if it's None
-    
+
     argparser.add_argument(
         "--run-scale",
         # Set it to the env RUN_SCALE if it isn't blank, otherwise set it to 0.25
@@ -79,6 +79,15 @@ def set_argparse():
         else "faces",
         type=str,
         help="The directory to store the faces. Can either contain images or subdirectories with images, the latter being the preferred method",  # noqa: E501
+    )
+    argparser.add_argument(
+        "--no-remove-representations",
+        default=os.environ["NO_REMOVE_REPRESENTATIONS"]
+        if "NO_REMOVE_REPRESENTATIONS" in os.environ
+        and os.environ["NO_REMOVE_REPRESENTATIONS"] != ""
+        else False,
+        action="store_true",
+        help="Don't remove representations_<model>.pkl at the start of the program. Greatly improves startup time, but doesn't take into account changes to the faces directory since it was created",  # noqa: E501
     )
     argparser.add_argument(
         "--detect-object",
@@ -145,6 +154,7 @@ def set_argparse():
         help="The time (seconds) before another notification can be sent",
     )
     # return argparser
+
 
 # This will run when this file is imported
 set_argparse()
