@@ -134,7 +134,7 @@ def recognize_face(
         # So we can just grab the path from there
         # iloc = Integer LOCation
         path_to_image = Path(df.iloc[-1]["identity"])
-        # If the parent name is the same as the path to the database, then set label to the image name instead of the parent directory name
+        # If the parent name is the same as the path to the database, then set label to the image name instead of the parent name
         if path_to_image.parent == Path(path_to_directory):
             label = path_to_image.name
         else:
