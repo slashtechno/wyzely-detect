@@ -68,6 +68,8 @@ def recognize_face(
     path_to_directory: Path = Path("faces"),
     # opencv image
     run_frame: np.ndarray = None,
+    min_confidence: float = 0.3,
+    no_remove_representations: bool = False,
 ) -> np.ndarray:
     """
     Accepts a path to a directory of images of faces to be used as a refference
@@ -94,12 +96,15 @@ def recognize_face(
     global first_face_try
 
     # If it's the first time the function is being run, remove representations_arcface.pkl, if it exists
-    if first_face_try:
+    if first_face_try and not no_remove_representations:
         try:
             path_to_directory.joinpath("representations_arcface.pkl").unlink()
             print("Removing representations_arcface.pkl")
         except FileNotFoundError:
             print("representations_arcface.pkl does not exist")
+        first_face_try = False
+    elif first_face_try and no_remove_representations:
+        print("Not attempting to remove representations_arcface.pkl")
         first_face_try = False
 
     # face_dataframes is a vanilla list of dataframes
@@ -134,7 +139,7 @@ def recognize_face(
         # So we can just grab the path from there
         # iloc = Integer LOCation
         path_to_image = Path(df.iloc[-1]["identity"])
-        # If the parent name is the same as the path to the database, then set label to the image name instead of the parent directory name
+        # If the parent name is the same as the path to the database, then set label to the image name instead of the parent name
         if path_to_image.parent == Path(path_to_directory):
             label = path_to_image.name
         else:
@@ -149,15 +154,13 @@ def recognize_face(
             "y2": df.iloc[-1]["source_y"] + df.iloc[-1]["source_h"],
         }
         # After some brief testing, it seems positive matches are > 0.3
-        distance = df.iloc[-1]["ArcFace_cosine"]
-        # TODO: Make this a CLI argument
-        if distance < 0.3:
+        cosine_similarity = df.iloc[-1]["ArcFace_cosine"]
+        if cosine_similarity < min_confidence:
             return None
-        # if 0.5 < distance < 0.7:
         # label = "Unknown"
         to_return = dict(label=label, **coordinates)
         print(
-            f"Confindence: {distance}, filname: {path_to_image.name}, to_return: {to_return}"
+            f"Cosine similarity: {cosine_similarity}, filname: {path_to_image.name}, to_return: {to_return}"
         )
         return to_return
 
