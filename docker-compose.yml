@@ -6,8 +6,8 @@ services:
         container_name: bridge-wyzely-detect
         restart: unless-stopped
         image: mrlt8/wyze-bridge:latest
-        # I think we can remove the ports, since we're using the network
-        # Just an unnecesary security risk
+        # The ports can be removed since we're using the network
+        # Just an unnecesary security risk to expose them but can be useful for debugging  
         # ports:
         #     - 1935:1935 # RTMP
         #     - 8554:8554 # RTSP (this is really the only one we need)
@@ -36,10 +36,11 @@ services:
     wyzely-detect:
       container_name: wyzely-detect
       restart: unless-stopped 
-      # image: ghcr.io/slashtechno/wyzely-detect:latest
-      build:
-        context: .
-        dockerfile: Dockerfile
+      image: ghcr.io/slashtechno/wyzely-detect:latest
+      # Building from source is also an option
+      # build:
+        # context: .
+        # dockerfile: Dockerfile
       volumes:
         - ./faces:/app/faces
       networks:

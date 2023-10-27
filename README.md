@@ -11,11 +11,12 @@ Recognize faces/objects in a video stream (from a webcam or a security camera) a
 
 
 ## Prerequisites  
-### Poetry/Python  
+### Python  
 - Camera, either a webcam or a Wyze Cam  
     - All RTSP feeds _should_ work, however.  
 - Python 3.10 or 3.11  
-- Poetry  
+- Poetry (optional)  
+
 ### Docker  
 - A Wyze Cam  
     - Any other RTSP feed _should_ work, as mentioned above  
@@ -28,13 +29,20 @@ Recognize faces/objects in a video stream (from a webcam or a security camera) a
 
 ## Usage  
 ### Installation  
+Cloning the repository is not required when installing from PyPi but is required when installing from source  
 1. Clone this repo with `git clone https://github.com/slashtechno/wyzely-detect`  
 2. `cd` into the cloned repository  
 3. Then, either install with [Poetry](https://python-poetry.org/) or run with Docker  
 
 #### Docker  
-1. Modify to `docker-compose.yml` to achieve desired configuration
-2. Run in the background with `docker compose up -d
+1. Modify to `docker-compose.yml` to achieve desired configuration  
+2. Run in the background with `docker compose up -d  
+
+#### Installing from PyPi with pip
+This assumes you have Python 3.10 or 3.11 installed  
+1. `pip install wyzely-detect`  
+    a. You may need to use `pip3` instead of `pip`  
+2. `wyzely-detect`  
 
 #### Poetry  
 1. `poetry install`  
