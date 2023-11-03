@@ -5,8 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Quick Debug",
+            "type": "python",
+            "request": "launch",
+            "module": "wyzely_detect",
+            "args": [
+                "--run-scale", "0.25", "--view-scale", "0.5", "--no-remove-representations"
+            ],
+            "justMyCode": true
+        },
+        {
             // "name": "Python: Module",
-            "name": "Debug Wyzely Detect",
+            "name": "Full Debug",
             "type": "python",
             "request": "launch",
             "module": "wyzely_detect",

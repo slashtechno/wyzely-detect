@@ -138,7 +138,12 @@ def recognize_face(
         # The last row is the highest confidence
         # So we can just grab the path from there
         # iloc = Integer LOCation
-        path_to_image = Path(df.iloc[-1]["identity"])
+        try:
+            path_to_image = Path(df.iloc[-1]["identity"])
+        # Seems this is caused when someone steps into frame and their face is detected but not recognized
+        except IndexError:
+            print("Face present but not recognized")
+            return None
         # If the parent name is the same as the path to the database, then set label to the image name instead of the parent name
         if path_to_image.parent == Path(path_to_directory):
             label = path_to_image.name
