@@ -72,7 +72,15 @@ def set_argparse():
         action="store_true",
         help="Don't display the video feed",
     )
-
+    video_options.add_argument(
+        '-c',
+        '--force-disable-tensorflow-gpu',
+        default=os.environ["FORCE_DISABLE_TENSORFLOW_GPU"]
+        if "FORCE_DISABLE_TENSORFLOW_GPU" in os.environ and os.environ["FORCE_DISABLE_TENSORFLOW_GPU"] != ""
+        else False,
+        action="store_true",
+        help="Force disable tensorflow GPU through env since sometimes it's not worth it to install cudnn and whatnot",
+    )
 
     notifcation_services = argparser.add_argument_group("Notification Services")
     notifcation_services.add_argument(

@@ -1,6 +1,6 @@
 # import face_recognition
 from pathlib import Path
-
+import os
 import cv2
 
 # import hjson as json
@@ -30,12 +30,22 @@ def main():
     # https://github.com/ultralytics/ultralytics/issues/3084#issuecomment-1732433168
     # Currently, I have been unable to set up Poetry to use GPU for Torch
     for i in range(torch.cuda.device_count()):
-        print(torch.cuda.get_device_properties(i).name)
+        print(f'Using {torch.cuda.get_device_properties(i).name} for pytorch')
     if torch.cuda.is_available():
         torch.cuda.set_device(0)
         print("Set CUDA device")
     else:
         print("No CUDA device available, using CPU")
+    # Seems automatically, deepface (tensorflow) tried to use my GPU on Pop!_OS (I did not set up cudnn or anything)
+    # Not sure the best way, in Poetry, to manage GPU libraries so for now, just use CPU
+    if args.force_disable_tensorflow_gpu:
+        print("Forcing tensorflow to use CPU")
+        import tensorflow as tf
+        tf.config.set_visible_devices([], 'GPU')
+        if tf.config.experimental.list_logical_devices('GPU'):
+            print('GPU disabled unsuccessfully')
+        else:
+            print("GPU disabled successfully")
 
     model = YOLO("yolov8n.pt")
 

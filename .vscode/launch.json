@@ -22,6 +22,16 @@
             "module": "wyzely_detect",
             // "justMyCode": true
             "justMyCode": false
-        }
+        },
+        {
+            "name": "Debug --help",
+            "type": "python",
+            "request": "launch",
+            "module": "wyzely_detect",
+            "args": [
+                "--help"
+            ],
+            "justMyCode": false
+        },
     ]
 }
