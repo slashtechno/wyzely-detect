@@ -60,7 +60,6 @@ def main():
     while True:
         # Grab a single frame of video
         ret, frame = video_capture.read()
-        # Only process every other frame of video to save time
         # Resize frame of video to a smaller size for faster recognition processing
         run_frame = cv2.resize(frame, (0, 0), fx=args.run_scale, fy=args.run_scale)
         # view_frame = cv2.resize(frame, (0, 0), fx=args.view_scale, fy=args.view_scale)

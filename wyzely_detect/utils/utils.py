@@ -124,13 +124,21 @@ def recognize_face(
             model_name="ArcFace",
             detector_backend="opencv",
         )
-    except ValueError as e:
+    
+    except (ValueError) as e:
         if (
             str(e)
             == "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False."  # noqa: E501
         ):
             # print("No faces recognized") # For debugging
             return None
+        elif (
+            # Check if the error message contains "Validate .jpg or .png files exist in this path."
+            "Validate .jpg or .png files exist in this path." in str(e)
+        ):
+            # If a verbose/silent flag is added, this should be changed to print only if verbose is true
+            # print("No faces found in database")
+            return None 
         else:
             raise e
     # Iteate over the dataframes
