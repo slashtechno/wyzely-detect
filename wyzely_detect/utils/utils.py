@@ -151,7 +151,7 @@ def recognize_face(
         # Seems this is caused when someone steps into frame and their face is detected but not recognized
         except IndexError:
             print("Face present but not recognized")
-            return None
+            continue
         # If the parent name is the same as the path to the database, then set label to the image name instead of the parent name
         if path_to_image.parent == Path(path_to_directory):
             label = path_to_image.name
