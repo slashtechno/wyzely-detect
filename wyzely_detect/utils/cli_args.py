@@ -92,6 +92,7 @@ def set_argparse():
         help="The URL to send notifications to",
     )
 
+    # Various timers
     timers = argparser.add_argument_group("Timers")
     timers.add_argument(
         "--detection-duration",
