@@ -150,16 +150,16 @@ def process_footage(
             )
             
 
-            # To debug plotting, use r.plot() to cross reference the bounding boxes drawn by the plot_label() and r.plot()
-            frame_to_show = plot_label(
-                boxes=plot_boxes,
-                full_frame=frame,
-                # full_frame=r.plot(),
-                run_scale=run_scale,
-                view_scale=view_scale,
-            )
-            # Unsure if this should also return the objects_and_peoples dict
-            return frame_to_show
+        # To debug plotting, use r.plot() to cross reference the bounding boxes drawn by the plot_label() and r.plot()
+        frame_to_show = plot_label(
+            boxes=plot_boxes,
+            full_frame=frame,
+            # full_frame=r.plot(),
+            run_scale=run_scale,
+            view_scale=view_scale,
+        )
+        # Unsure if this should also return the objects_and_peoples dict
+        return frame_to_show
 
 
 def plot_label(

@@ -88,8 +88,6 @@ def main():
         # Display the resulting frame
         # TODO: When multi-camera support is added, this needs to be changed to allow all feeds
         if not args.no_display:
-            # When a face isn't recognized: "cv2.error: OpenCV(4.8.1) D:\a\opencv-python\opencv-python\opencv\modules\highgui\src\window.cpp:971: error: (-215:Assertion failed) size.width>0 && size.height>0 in function 'cv::imshow'"
-            # Seems to be because frame_to_show is null
             cv2.imshow("Video", frame_to_show)
 
         # Hit 'q' on the keyboard to quit!
