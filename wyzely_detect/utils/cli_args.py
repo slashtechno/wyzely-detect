@@ -154,7 +154,7 @@ def set_argparse():
     object_detection = argparser.add_argument_group("Object Detection options")
     object_detection.add_argument(
         "--detect-object",
-        nargs="*",
+        action="append",
         default=[],
         type=str,
         help="The object(s) to detect. Must be something the model is trained to detect",
