@@ -100,7 +100,7 @@ def process_footage(
             # Also, make sure that the objects to detect are in the list of objects_and_peoples
             # If it isn't, print a warning
             for obj in detect_object:
-                if obj not in objects_and_peoples:
+                if obj not in objects_and_peoples["objects"].keys():
                     print(
                         f"Warning: {obj} is not in the list of objects the model can detect!"
                     )

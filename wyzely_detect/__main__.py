@@ -1,6 +1,5 @@
 # import face_recognition
 from pathlib import Path
-import os
 import cv2
 
 # import hjson as json
@@ -16,7 +15,7 @@ args = None
 
 def main():
     global objects_and_peoples
-    global args
+    global args 
     # RUN_BY_COMPOSE = os.getenv("RUN_BY_COMPOSE") # Replace this with code to check for gpu
 
     args = argparser.parse_args()
