@@ -33,10 +33,13 @@ torch = {version = "^2.1.2", source = "pytorch-cpu", markers = "extra!='cuda'" }
 # cuDNN version - 8.8.1
 # Installed from Nvidia website - nvidia-cuda-toolkit is not installed, but default PopOS drivers are installed
 tensorflow-io-gcs-filesystem = "0.31.0"
-tensorflow = {version = "^2.14.0", extras = ["and-cuda"]}
+# So this wasn't working on Windows, so unless there's a way to optionally install this, we'll install it without and-cuda
+# tensorflow = {version = "^2.14.0", extras = ["and-cuda"]}
+tensorflow = {version = "^2.14.0"}
 
 
 deepface = "^0.0.79"
+prettytable = "^3.9.0"
 
 [tool.poetry.group.remote]
 optional = true
