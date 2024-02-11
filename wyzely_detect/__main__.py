@@ -2,7 +2,7 @@
 from pathlib import Path
 import cv2
 
-from PrettyTable import PrettyTable
+from prettytable import PrettyTable
 
 # import hjson as json
 import torch
