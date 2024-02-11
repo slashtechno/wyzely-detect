@@ -1,6 +1,7 @@
 # import face_recognition
 from pathlib import Path
 import cv2
+import os
 
 from prettytable import PrettyTable
 
@@ -18,7 +19,7 @@ args = None
 def main():
     global objects_and_peoples
     global args 
-    # RUN_BY_COMPOSE = os.getenv("RUN_BY_COMPOSE") # Replace this with code to check for gpu
+
 
     args = argparser.parse_args()
 
@@ -49,7 +50,9 @@ def main():
     # Set the video capture to the appropriate source
     if not args.rtsp_url and not args.capture_device:
         print("No stream or capture device set, defaulting to capture device 0")
-        args.capture_device = [0]
+        video_sources = {
+            "devices": [cv2.VideoCapture(0)]
+        }
     else:
         video_sources = {
             "streams": [cv2.VideoCapture(url) for url in args.rtsp_url],
@@ -60,13 +63,22 @@ def main():
     # This makes it so that the video capture will only grab the most recent frame
     # However, this means that the video may be choppy
     # Only do this for streams
-    for stream in video_sources["streams"]:
-        stream.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    try:
+        for stream in video_sources["streams"]:
+            stream.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    # If there are no streams, this will throw a KeyError
+    except KeyError:
+        pass
 
-    # Print the resolution of the video
-    print(
-        f"Video resolution: {video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)}x{video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)}"  # noqa: E501
-    )
+    # Print out the resolution of the video sources. Ideally, change this so the device ID/url is also printed
+    pretty_table = PrettyTable(field_names=["Source Type", "Resolution"])
+    for source_type, sources in video_sources.items():
+        for source in sources:
+            pretty_table.add_row(
+                [source_type, f"{source.get(cv2.CAP_PROP_FRAME_WIDTH)}x{source.get(cv2.CAP_PROP_FRAME_HEIGHT)}"]
+            )
+    print(pretty_table)
+
     print
     print("Beginning video capture...")
     while True:

@@ -23,7 +23,7 @@ numpy = "^1.23.2"
 
 # https://github.com/python-poetry/poetry/issues/6409#issuecomment-1911735833
 # To install with GPU, use poetry install -E cuda --with gpu
-torch = {version = "^2.1.2", source = "pytorch-cpu", markers = "extra!='cuda'" }
+torch = {version = "2.1.*", source = "pytorch-cpu", markers = "extra!='cuda'" }
 
 # https://stackoverflow.com/a/76477590/18270659
 # https://discfuss.tensorflow.org/t/tensorflow-io-gcs-filesystem-with-windows/18849/4
@@ -45,7 +45,7 @@ prettytable = "^3.9.0"
 optional = true
 
 [tool.poetry.group.gpu.dependencies]
-torch = {version = "^2.1.2", source = "pytorch-cu121", markers = "extra=='cuda'"}
+torch = {version = "2.1.*", source = "pytorch-cu121", markers = "extra=='cuda'"}
 tensorflow = {version = "^2.14.0", extras = ["and-cuda"], markers = "extra=='cuda'"}
 
 [tool.poetry.extras]

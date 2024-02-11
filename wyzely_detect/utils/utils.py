@@ -1,8 +1,13 @@
 import cv2
+import os
 import numpy as np
 from pathlib import Path
-from deepface import DeepFace
-from . import notify
+# https://stackoverflow.com/a/42121886/18270659
+os.environ['TF_CPP_MIN_LOG_LEVEL']='3'
+
+
+from deepface import DeepFace # noqa: E402
+from . import notify # noqa: E402
 
 first_face_try = True
 
