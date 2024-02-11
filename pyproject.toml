@@ -21,11 +21,11 @@ ultralytics = "^8.0.190"
 hjson = "^3.1.0"
 numpy = "^1.23.2"
 
-# https://github.com/python-poetry/poetry/issues/6409
-torch = ">=2.0.0, !=2.0.1, !=2.1.0"
+# https://github.com/python-poetry/poetry/issues/6409#issuecomment-1911735833
+torch = {version = "^2.1.2", source = "pytorch-cpu", markers = "extra!='cuda'" }
 
 # https://stackoverflow.com/a/76477590/18270659
-# https://discuss.tensorflow.org/t/tensorflow-io-gcs-filesystem-with-windows/18849/4
+# https://discfuss.tensorflow.org/t/tensorflow-io-gcs-filesystem-with-windows/18849/4
 # Might be able to remove this version constraint later
 # Working versions:
 # Python version 3.10.12 and 3.10.5 both work
@@ -37,6 +37,25 @@ tensorflow = {version = "^2.14.0", extras = ["and-cuda"]}
 
 
 deepface = "^0.0.79"
+
+[tool.poetry.group.remote]
+optional = true
+
+[tool.poetry.group.remote.dependencies]
+torch = {version = "^2.1.2", source = "pytorch-cu121", markers = "extra=='cuda'"}
+
+[tool.poetry.extras]
+cuda = []
+
+[[tool.poetry.source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
+[[tool.poetry.source]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
