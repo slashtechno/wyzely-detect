@@ -29,17 +29,19 @@ def set_argparse():
     stream_source = video_options.add_mutually_exclusive_group()
     stream_source.add_argument(
         "--rtsp-url",
-        default=os.environ["RTSP_URL"]
-        if "RTSP_URL" in os.environ and os.environ["RTSP_URL"] != ""
-        else None,  # noqa: E501
+        action="append",
+        # If RTSP_URL is in the environment, use it, otherwise just use a blank list
+        # This may cause problems down the road, but if it does, env for this can be removed
+        default=[os.environ["RTSP_URL"]] if "RTSP_URL" in os.environ and os.environ["RTSP_URL"] != "" else [],
         type=str,
         help="RTSP camera URL",
     )
     stream_source.add_argument(
         "--capture-device",
-        default=os.environ["CAPTURE_DEVICE"]
-        if "CAPTURE_DEVICE" in os.environ and os.environ["CAPTURE_DEVICE"] != ""
-        else 0,  # noqa: E501
+        action="append",
+        # If CAPTURE_DEVICE is in the environment, use it, otherwise just use a blank list
+        # If __main__.py detects that no capture device or remote stream is set, it will default to 0
+        default=[int(os.environ["CAPTURE_DEVICE"])] if "CAPTURE_DEVICE" in os.environ and os.environ["CAPTURE_DEVICE"] != "" else [],
         type=int,
         help="Capture device number",
     )
@@ -155,6 +157,7 @@ def set_argparse():
     object_detection.add_argument(
         "--detect-object",
         action="append",
+        # Stuff is appended to default, as far as I can tell
         default=[],
         type=str,
         help="The object(s) to detect. Must be something the model is trained to detect",

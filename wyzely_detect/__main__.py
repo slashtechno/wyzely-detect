@@ -2,6 +2,8 @@
 from pathlib import Path
 import cv2
 
+from PrettyTable import PrettyTable
+
 # import hjson as json
 import torch
 from ultralytics import YOLO
@@ -45,21 +47,27 @@ def main():
 
     # Depending on if the user wants to use a stream or a capture device,
     # Set the video capture to the appropriate source
-    if args.rtsp_url is not None:
-        video_capture = cv2.VideoCapture(args.rtsp_url)
+    if not args.rtsp_url and not args.capture_device:
+        print("No stream or capture device set, defaulting to capture device 0")
+        args.capture_device = [0]
     else:
-        video_capture = cv2.VideoCapture(args.capture_device)
+        video_sources = {
+            "streams": [cv2.VideoCapture(url) for url in args.rtsp_url],
+            "devices": [cv2.VideoCapture(device) for device in args.capture_device],
+        }
 
     # Eliminate lag by setting the buffer size to 1
     # This makes it so that the video capture will only grab the most recent frame
     # However, this means that the video may be choppy
-    video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    # Only do this for streams
+    for stream in video_sources["streams"]:
+        stream.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     # Print the resolution of the video
     print(
         f"Video resolution: {video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)}x{video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)}"  # noqa: E501
     )
-
+    print
     print("Beginning video capture...")
     while True:
         # Grab a single frame of video
