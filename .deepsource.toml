@@ -5,8 +5,9 @@ name = "python"
 
   [analyzers.meta]
   runtime_version = "3.x.x"
-  max_line_length = 135
-
 
 [[analyzers]]
 name = "docker"
+
+[[transformers]]
+name = "black"
