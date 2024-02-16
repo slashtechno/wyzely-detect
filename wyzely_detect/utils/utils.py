@@ -278,10 +278,10 @@ def recognize_face(
             model_name="ArcFace",
             detector_backend="opencv",
         )
-        '''
+        """
         Example dataframe, for reference
         identity  (path to image) | source_x | source_y | source_w | source_h | VGG-Face_cosine (pretty much the confidence \\_('_')_/) 
-        '''
+        """
     except ValueError as e:
         if (
             str(e)
