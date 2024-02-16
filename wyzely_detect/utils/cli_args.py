@@ -21,7 +21,7 @@ def set_argparse():
     argparser = argparse.ArgumentParser(
         prog="Wyzely Detect",
         description="Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices",  # noqa: E501
-        epilog=":)",
+        epilog="For env bool options, setting them to anything except for an empty string will enable them."
     )
 
 
@@ -69,7 +69,9 @@ def set_argparse():
     video_options.add_argument(
         "--no-display",
         default=os.environ["NO_DISPLAY"]
-        if "NO_DISPLAY" in os.environ and os.environ["NO_DISPLAY"] != ""
+        if "NO_DISPLAY" in os.environ
+        and os.environ["NO_DISPLAY"] != ""
+        and os.environ["NO_DISPLAY"].lower() != "false"
         else False,
         action="store_true",
         help="Don't display the video feed",
@@ -78,7 +80,9 @@ def set_argparse():
         '-c',
         '--force-disable-tensorflow-gpu',
         default=os.environ["FORCE_DISABLE_TENSORFLOW_GPU"]
-        if "FORCE_DISABLE_TENSORFLOW_GPU" in os.environ and os.environ["FORCE_DISABLE_TENSORFLOW_GPU"] != ""
+        if "FORCE_DISABLE_TENSORFLOW_GPU" in os.environ 
+        and os.environ["FORCE_DISABLE_TENSORFLOW_GPU"] != ""
+        and os.environ["FORCE_DISABLE_TENSORFLOW_GPU"].lower() != "false"
         else False,
         action="store_true",
         help="Force disable tensorflow GPU through env since sometimes it's not worth it to install cudnn and whatnot",
@@ -146,6 +150,7 @@ def set_argparse():
         default=os.environ["NO_REMOVE_REPRESENTATIONS"]
         if "NO_REMOVE_REPRESENTATIONS" in os.environ
         and os.environ["NO_REMOVE_REPRESENTATIONS"] != ""
+        and os.environ["NO_REMOVE_REPRESENTATIONS"].lower() != "false"
         else False,
         action="store_true",
         help="Don't remove representations_<model>.pkl at the start of the program. Greatly improves startup time, but doesn't take into account changes to the faces directory since it was created",  # noqa: E501
@@ -166,10 +171,25 @@ def set_argparse():
         "--object-confidence-threshold",
         default=os.environ["OBJECT_CONFIDENCE_THRESHOLD"]
         if "OBJECT_CONFIDENCE_THRESHOLD" in os.environ
-        and os.environ["OBJECT_CONFIDENCE_THRESHOLD"] != ""
+        and os.environ["OBJECT_CONFIDENCE_THRESHOLD"] != "" 
+        # I think this should always be a str so using lower shouldn't be a problem. 
+        # Also, if the first check fails the rest shouldn't be run 
+        and os.environ["OBJECT_CONFIDENCE_THRESHOLD"].lower() != "false"
         else 0.6,
         type=float,
         help="The confidence threshold to use",
+    )
+
+    debug = argparser.add_argument_group("Debug options")
+    debug.add_argument(
+        "--fake-second-source",
+        help="Duplicate the first source and use it as a second source. Capture device takes priority.",
+        action="store_true",
+        default=os.environ["FAKE_SECOND_SOURCE"]
+        if "FAKE_SECOND_SOURCE" in os.environ
+        and os.environ["FAKE_SECOND_SOURCE"] != ""
+        and os.environ["FAKE_SECOND_SOURCE"].lower() != "false"
+        else False,
     )
 
     # return argparser

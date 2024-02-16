@@ -59,6 +59,17 @@ def main():
             "devices": [cv2.VideoCapture(device) for device in args.capture_device],
         }
 
+    if args.fake_second_source:
+        try:
+            video_sources["devices"].append(video_sources["devices"][0])
+        except KeyError:
+            print("No capture device to use as second source. Trying stream.")
+            try:
+                video_sources["devices"].append(video_sources["devices"][0])
+            except KeyError:
+                print("No stream to use as a second source")
+                # When the code tries to resize the nonexistent capture device 1, the program will fail
+
     # Eliminate lag by setting the buffer size to 1
     # This makes it so that the video capture will only grab the most recent frame
     # However, this means that the video may be choppy
@@ -74,6 +85,7 @@ def main():
     pretty_table = PrettyTable(field_names=["Source Type", "Resolution"])
     for source_type, sources in video_sources.items():
         for source in sources:
+            # TODO: Add check to see if resolution is 0x0, and if it is, print a warning or just fail
             pretty_table.add_row(
                 [source_type, f"{source.get(cv2.CAP_PROP_FRAME_WIDTH)}x{source.get(cv2.CAP_PROP_FRAME_HEIGHT)}"]
             )
@@ -83,31 +95,36 @@ def main():
     print("Beginning video capture...")
     while True:
         # Grab a single frame of video
-        ret, frame = video_capture.read()
+        frames = []
+        # frames = [source.read() for sources in video_sources.values() for source in sources]
+        for list_of_sources in video_sources.values():
+            frames.extend([source.read()[1] for source in list_of_sources])
+        frames_to_show = []
+        for frame in frames:
+            frames_to_show.append(utils.process_footage(
+                frame = frame,
+                run_scale = args.run_scale,
+                view_scale = args.view_scale,
 
-        frame_to_show = utils.process_footage(
-            frame = frame,
-            run_scale = args.run_scale,
-            view_scale = args.view_scale,
+                faces_directory=Path(args.faces_directory),
+                face_confidence_threshold=args.face_confidence_threshold,
+                no_remove_representations=args.no_remove_representations,
 
-            faces_directory=Path(args.faces_directory),
-            face_confidence_threshold=args.face_confidence_threshold,
-            no_remove_representations=args.no_remove_representations,
+                detection_window=args.detection_window,
+                detection_duration=args.detection_duration,
+                notification_window=args.notification_window,
 
-            detection_window=args.detection_window,
-            detection_duration=args.detection_duration,
-            notification_window=args.notification_window,
+                ntfy_url=args.ntfy_url,
 
-            ntfy_url=args.ntfy_url,
-
-            model=model,
-            detect_object=args.detect_object,
-            object_confidence_threshold=args.object_confidence_threshold,
-        )
+                model=model,
+                detect_object=args.detect_object,
+                object_confidence_threshold=args.object_confidence_threshold,
+            ))
         # Display the resulting frame
         # TODO: When multi-camera support is added, this needs to be changed to allow all feeds
         if not args.no_display:
-            cv2.imshow("Video", frame_to_show)
+            for i, frame_to_show in enumerate(frames_to_show):    
+                cv2.imshow(f"Video {i}", frame_to_show)
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -115,7 +132,7 @@ def main():
 
     # Release handle to the webcam
     print("Releasing video capture")
-    video_capture.release()
+    [source.release() for sources in video_sources.values() for source in sources]
     cv2.destroyAllWindows()
 
 
