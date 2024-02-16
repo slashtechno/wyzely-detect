@@ -126,7 +126,6 @@ def main():
                 )
             )
         # Display the resulting frame
-        # TODO: When multi-camera support is added, this needs to be changed to allow all feeds
         if not args.no_display:
             for i, frame_to_show in enumerate(frames_to_show):
                 cv2.imshow(f"Video {i}", frame_to_show)

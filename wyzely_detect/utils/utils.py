@@ -12,7 +12,7 @@ from . import notify  # noqa: E402
 
 first_face_try = True
 
-# TODO: When multi-camera support is added, this will need to be changed so that each camera has its own dict
+# TODO: When multi-camera support is ~~added~~ improved, this will need to be changed so that each camera has its own dict
 objects_and_peoples = {
     "objects": {},
     "peoples": {},
