@@ -16,7 +16,6 @@ args = None
 
 
 def main():
-    global objects_and_peoples
     global args
 
     args = argparser.parse_args()
@@ -100,8 +99,6 @@ def main():
                 ]
             )
     print(pretty_table)
-
-    print
     print("Beginning video capture...")
     while True:
         # Grab a single frame of video

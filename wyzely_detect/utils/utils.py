@@ -283,7 +283,7 @@ def recognize_face(
         )
         """
         Example dataframe, for reference
-        identity  (path to image) | source_x | source_y | source_w | source_h | VGG-Face_cosine (pretty much the confidence \_('_')_/) 
+        identity  (path to image) | source_x | source_y | source_w | source_h | VGG-Face_cosine (pretty much the confidence \\_('_')_/) 
         """
     except ValueError as e:
         if (
