@@ -1,7 +1,7 @@
 # import face_recognition
 from pathlib import Path
 import cv2
-
+import sys
 from prettytable import PrettyTable
 
 # import hjson as json
@@ -17,8 +17,7 @@ args = None
 
 def main():
     global objects_and_peoples
-    global args 
-
+    global args
 
     args = argparser.parse_args()
 
@@ -26,7 +25,7 @@ def main():
     # https://github.com/ultralytics/ultralytics/issues/3084#issuecomment-1732433168
     # Currently, I have been unable to set up Poetry to use GPU for Torch
     for i in range(torch.cuda.device_count()):
-        print(f'Using {torch.cuda.get_device_properties(i).name} for pytorch')
+        print(f"Using {torch.cuda.get_device_properties(i).name} for pytorch")
     if torch.cuda.is_available():
         torch.cuda.set_device(0)
         print("Set CUDA device")
@@ -37,9 +36,10 @@ def main():
     if args.force_disable_tensorflow_gpu:
         print("Forcing tensorflow to use CPU")
         import tensorflow as tf
-        tf.config.set_visible_devices([], 'GPU')
-        if tf.config.experimental.list_logical_devices('GPU'):
-            print('GPU disabled unsuccessfully')
+
+        tf.config.set_visible_devices([], "GPU")
+        if tf.config.experimental.list_logical_devices("GPU"):
+            print("GPU disabled unsuccessfully")
         else:
             print("GPU disabled successfully")
 
@@ -49,9 +49,7 @@ def main():
     # Set the video capture to the appropriate source
     if not args.rtsp_url and not args.capture_device:
         print("No stream or capture device set, defaulting to capture device 0")
-        video_sources = {
-            "devices": [cv2.VideoCapture(0)]
-        }
+        video_sources = {"devices": [cv2.VideoCapture(0)]}
     else:
         video_sources = {
             "streams": [cv2.VideoCapture(url) for url in args.rtsp_url],
@@ -84,17 +82,22 @@ def main():
     pretty_table = PrettyTable(field_names=["Source Type", "Resolution"])
     for source_type, sources in video_sources.items():
         for source in sources:
-            if source.get(cv2.CAP_PROP_FRAME_WIDTH) == 0 or source.get(cv2.CAP_PROP_FRAME_HEIGHT) == 0:
+            if (
+                source.get(cv2.CAP_PROP_FRAME_WIDTH) == 0
+                or source.get(cv2.CAP_PROP_FRAME_HEIGHT) == 0
+            ):
                 message = "Capture for a source failed as resolution is 0x0.\n"
                 if source_type == "streams":
                     message += "Check if the stream URL is correct and if the stream is online."
                 else:
                     message += "Check if the capture device is connected, working, and not in use by another program."
                 print(message)
-                # Maybe use os.exit() instead?
-                exit(1)
+                sys.exit(1)
             pretty_table.add_row(
-                [source_type, f"{source.get(cv2.CAP_PROP_FRAME_WIDTH)}x{source.get(cv2.CAP_PROP_FRAME_HEIGHT)}"]
+                [
+                    source_type,
+                    f"{source.get(cv2.CAP_PROP_FRAME_WIDTH)}x{source.get(cv2.CAP_PROP_FRAME_HEIGHT)}",
+                ]
             )
     print(pretty_table)
 
@@ -108,29 +111,27 @@ def main():
             frames.extend([source.read()[1] for source in list_of_sources])
         frames_to_show = []
         for frame in frames:
-            frames_to_show.append(utils.process_footage(
-                frame = frame,
-                run_scale = args.run_scale,
-                view_scale = args.view_scale,
-
-                faces_directory=Path(args.faces_directory),
-                face_confidence_threshold=args.face_confidence_threshold,
-                no_remove_representations=args.no_remove_representations,
-
-                detection_window=args.detection_window,
-                detection_duration=args.detection_duration,
-                notification_window=args.notification_window,
-
-                ntfy_url=args.ntfy_url,
-
-                model=model,
-                detect_object=args.detect_object,
-                object_confidence_threshold=args.object_confidence_threshold,
-            ))
+            frames_to_show.append(
+                utils.process_footage(
+                    frame=frame,
+                    run_scale=args.run_scale,
+                    view_scale=args.view_scale,
+                    faces_directory=Path(args.faces_directory),
+                    face_confidence_threshold=args.face_confidence_threshold,
+                    no_remove_representations=args.no_remove_representations,
+                    detection_window=args.detection_window,
+                    detection_duration=args.detection_duration,
+                    notification_window=args.notification_window,
+                    ntfy_url=args.ntfy_url,
+                    model=model,
+                    detect_object=args.detect_object,
+                    object_confidence_threshold=args.object_confidence_threshold,
+                )
+            )
         # Display the resulting frame
         # TODO: When multi-camera support is added, this needs to be changed to allow all feeds
         if not args.no_display:
-            for i, frame_to_show in enumerate(frames_to_show):    
+            for i, frame_to_show in enumerate(frames_to_show):
                 cv2.imshow(f"Video {i}", frame_to_show)
 
         # Hit 'q' on the keyboard to quit!

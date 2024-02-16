@@ -15,15 +15,13 @@ def set_argparse():
     else:
         print("No .env file found")
 
-
     # One important thing to consider is that most function parameters are optional and have a default value
     # However, with argparse, those are never used since a argparse always passes something, even if it's None
     argparser = argparse.ArgumentParser(
         prog="Wyzely Detect",
         description="Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices",  # noqa: E501
-        epilog="For env bool options, setting them to anything except for an empty string will enable them."
+        epilog="For env bool options, setting them to anything except for an empty string will enable them.",
     )
-
 
     video_options = argparser.add_argument_group("Video Options")
     stream_source = video_options.add_mutually_exclusive_group()
@@ -32,7 +30,9 @@ def set_argparse():
         action="append",
         # If RTSP_URL is in the environment, use it, otherwise just use a blank list
         # This may cause problems down the road, but if it does, env for this can be removed
-        default=[os.environ["RTSP_URL"]] if "RTSP_URL" in os.environ and os.environ["RTSP_URL"] != "" else [],
+        default=[os.environ["RTSP_URL"]]
+        if "RTSP_URL" in os.environ and os.environ["RTSP_URL"] != ""
+        else [],
         type=str,
         help="RTSP camera URL",
     )
@@ -41,7 +41,9 @@ def set_argparse():
         action="append",
         # If CAPTURE_DEVICE is in the environment, use it, otherwise just use a blank list
         # If __main__.py detects that no capture device or remote stream is set, it will default to 0
-        default=[int(os.environ["CAPTURE_DEVICE"])] if "CAPTURE_DEVICE" in os.environ and os.environ["CAPTURE_DEVICE"] != "" else [],
+        default=[int(os.environ["CAPTURE_DEVICE"])]
+        if "CAPTURE_DEVICE" in os.environ and os.environ["CAPTURE_DEVICE"] != ""
+        else [],
         type=int,
         help="Capture device number",
     )
@@ -77,10 +79,10 @@ def set_argparse():
         help="Don't display the video feed",
     )
     video_options.add_argument(
-        '-c',
-        '--force-disable-tensorflow-gpu',
+        "-c",
+        "--force-disable-tensorflow-gpu",
         default=os.environ["FORCE_DISABLE_TENSORFLOW_GPU"]
-        if "FORCE_DISABLE_TENSORFLOW_GPU" in os.environ 
+        if "FORCE_DISABLE_TENSORFLOW_GPU" in os.environ
         and os.environ["FORCE_DISABLE_TENSORFLOW_GPU"] != ""
         and os.environ["FORCE_DISABLE_TENSORFLOW_GPU"].lower() != "false"
         else False,
@@ -126,7 +128,6 @@ def set_argparse():
         help="The time (seconds) before another notification can be sent",
     )
 
-
     face_recognition = argparser.add_argument_group("Face Recognition options")
     face_recognition.add_argument(
         "--faces-directory",
@@ -156,8 +157,6 @@ def set_argparse():
         help="Don't remove representations_<model>.pkl at the start of the program. Greatly improves startup time, but doesn't take into account changes to the faces directory since it was created",  # noqa: E501
     )
 
-
-
     object_detection = argparser.add_argument_group("Object Detection options")
     object_detection.add_argument(
         "--detect-object",
@@ -171,11 +170,10 @@ def set_argparse():
         "--object-confidence-threshold",
         default=os.environ["OBJECT_CONFIDENCE_THRESHOLD"]
         if "OBJECT_CONFIDENCE_THRESHOLD" in os.environ
-        and os.environ["OBJECT_CONFIDENCE_THRESHOLD"] != "" 
-        # I think this should always be a str so using lower shouldn't be a problem. 
-        # Also, if the first check fails the rest shouldn't be run 
-        and os.environ["OBJECT_CONFIDENCE_THRESHOLD"].lower() != "false"
-        else 0.6,
+        and os.environ["OBJECT_CONFIDENCE_THRESHOLD"] != ""
+        # I think this should always be a str so using lower shouldn't be a problem.
+        # Also, if the first check fails the rest shouldn't be run
+        and os.environ["OBJECT_CONFIDENCE_THRESHOLD"].lower() != "false" else 0.6,
         type=float,
         help="The confidence threshold to use",
     )

@@ -2,12 +2,13 @@ import cv2
 import os
 import numpy as np
 from pathlib import Path
+
 # https://stackoverflow.com/a/42121886/18270659
-os.environ['TF_CPP_MIN_LOG_LEVEL']='3'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-from deepface import DeepFace # noqa: E402
-from . import notify # noqa: E402
+from deepface import DeepFace  # noqa: E402
+from . import notify  # noqa: E402
 
 first_face_try = True
 
@@ -21,36 +22,30 @@ objects_and_peoples = {
 def process_footage(
     # Frame
     frame: np.ndarray = None,
-
     # scale
     run_scale: float = None,
     view_scale: float = None,
-
     # Face stuff
     faces_directory: str = None,
     face_confidence_threshold: float = None,
     no_remove_representations: bool = False,
-
     # Timer stuff
     detection_window: int = None,
     detection_duration: int = None,
     notification_window: int = None,
-
     ntfy_url: str = None,
-
     # Object stuff
     # YOLO object
-    model = None,
+    model=None,
     detect_object: list = None,
-    object_confidence_threshold = None
+    object_confidence_threshold=None,
 ) -> np.ndarray:
     """
     Takes in a frame and processes it
-    """ 
+    """
 
     global objects_and_peoples
 
-    
     # Resize frame of video to a smaller size for faster recognition processing
     run_frame = cv2.resize(frame, (0, 0), fx=run_scale, fy=run_scale)
     # view_frame = cv2.resize(frame, (0, 0), fx=args.view_scale, fy=args.view_scale)
@@ -60,7 +55,7 @@ def process_footage(
     path_to_faces = Path(faces_directory)
     path_to_faces_exists = path_to_faces.is_dir()
 
-    for i, r in enumerate(results):
+    for r in results:
         # list of dicts with each dict containing a label, x1, y1, x2, y2
         plot_boxes = []
 
@@ -105,7 +100,8 @@ def process_footage(
             # Also, make sure that the objects to detect are in the list of objects_and_peoples
             # If it isn't, print a warning
             for obj in detect_object:
-                if obj not in objects_and_peoples["objects"].keys():
+                # .keys() shouldn't be needed
+                if obj not in objects_and_peoples["objects"]:
                     print(
                         f"Warning: {obj} is not in the list of objects the model can detect!"
                     )
@@ -153,7 +149,6 @@ def process_footage(
                 notification_window=notification_window,
                 ntfy_url=ntfy_url,
             )
-            
 
         # To debug plotting, use r.plot() to cross reference the bounding boxes drawn by the plot_label() and r.plot()
         frame_to_show = plot_label(
@@ -233,26 +228,27 @@ def recognize_face(
     no_remove_representations: bool = False,
 ) -> np.ndarray:
     """
-    Accepts a path to a directory of images of faces to be used as a refference
-    In addition, accepts an opencv image to be used as the frame to be searched
+        Accepts a path to a directory of images of faces to be used as a refference
+        In addition, accepts an opencv image to be used as the frame to be searched
 
-    Returns a single dictonary as currently only 1 face can be detected in each frame
-    Cosine threshold is 0.3, so if the confidence is less than that, it will return None
-    dict contains the following keys: label, x1, y1, x2, y2
-    The directory should be structured as follows:
-    faces/
-        name/
-            image1.jpg
-            image2.jpg
-            image3.jpg
-        name2/
-            image1.jpg
-            image2.jpg
-            image3.jpg
-    (not neccessarily jpgs, but you get the idea)
+        Returns a single dictonary as currently only 1 face can be detected in each frame
+        Cosine threshold is 0.3, so if the confidence is less than that, it will return None
+        dict conta                # Maybe use os.exit() instead?
+    ins the following keys: label, x1, y1, x2, y2
+        The directory should be structured as follows:
+        faces/
+            name/
+                image1.jpg
+                image2.jpg
+                image3.jpg
+            name2/
+                image1.jpg
+                image2.jpg
+                image3.jpg
+        (not neccessarily jpgs, but you get the idea)
 
-    Point is, `name` is the name of the person in the images in the directory `name`
-    That name will be used as the label for the face in the frame
+        Point is, `name` is the name of the person in the images in the directory `name`
+        That name will be used as the label for the face in the frame
     """
     global first_face_try
 
@@ -285,8 +281,11 @@ def recognize_face(
             model_name="ArcFace",
             detector_backend="opencv",
         )
-    
-    except (ValueError) as e:
+        """
+        Example dataframe, for reference
+        identity  (path to image) | source_x | source_y | source_w | source_h | VGG-Face_cosine (pretty much the confidence \_('_')_/) 
+        """
+    except ValueError as e:
         if (
             str(e)
             == "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False."  # noqa: E501
@@ -295,11 +294,12 @@ def recognize_face(
             return None
         elif (
             # Check if the error message contains "Validate .jpg or .png files exist in this path."
-            "Validate .jpg or .png files exist in this path." in str(e)
+            "Validate .jpg or .png files exist in this path."
+            in str(e)
         ):
             # If a verbose/silent flag is added, this should be changed to print only if verbose is true
             # print("No faces found in database")
-            return None 
+            return None
         else:
             raise e
     # Iteate over the dataframes
@@ -338,8 +338,3 @@ def recognize_face(
         )
         return to_return
     return None
-
-    """
-    Example dataframe, for reference
-    identity  (path to image) | source_x | source_y | source_w | source_h | VGG-Face_cosine (pretty much the confidence \_('_')_/) 
-    """
