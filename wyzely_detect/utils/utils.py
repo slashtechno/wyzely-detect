@@ -40,10 +40,7 @@ def process_footage(
     detect_object: list = None,
     object_confidence_threshold=None,
 ) -> np.ndarray:
-    """
-    Takes in a frame and processes it
-    """
-
+    """Takes in a frame and processes it"""
     global objects_and_peoples
 
     # Resize frame of video to a smaller size for faster recognition processing
