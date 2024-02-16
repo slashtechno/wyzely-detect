@@ -1,7 +1,6 @@
 # import face_recognition
 from pathlib import Path
 import cv2
-import os
 
 from prettytable import PrettyTable
 
@@ -85,7 +84,15 @@ def main():
     pretty_table = PrettyTable(field_names=["Source Type", "Resolution"])
     for source_type, sources in video_sources.items():
         for source in sources:
-            # TODO: Add check to see if resolution is 0x0, and if it is, print a warning or just fail
+            if source.get(cv2.CAP_PROP_FRAME_WIDTH) == 0 or source.get(cv2.CAP_PROP_FRAME_HEIGHT) == 0:
+                message = "Capture for a source failed as resolution is 0x0.\n"
+                if source_type == "streams":
+                    message += "Check if the stream URL is correct and if the stream is online."
+                else:
+                    message += "Check if the capture device is connected, working, and not in use by another program."
+                print(message)
+                # Maybe use os.exit() instead?
+                exit(1)
             pretty_table.add_row(
                 [source_type, f"{source.get(cv2.CAP_PROP_FRAME_WIDTH)}x{source.get(cv2.CAP_PROP_FRAME_HEIGHT)}"]
             )
