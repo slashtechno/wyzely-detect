@@ -15,31 +15,35 @@ def set_argparse():
     else:
         print("No .env file found")
 
-
     # One important thing to consider is that most function parameters are optional and have a default value
     # However, with argparse, those are never used since a argparse always passes something, even if it's None
     argparser = argparse.ArgumentParser(
         prog="Wyzely Detect",
         description="Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices",  # noqa: E501
-        epilog=":)",
+        epilog="For env bool options, setting them to anything except for an empty string will enable them.",
     )
-
 
     video_options = argparser.add_argument_group("Video Options")
     stream_source = video_options.add_mutually_exclusive_group()
     stream_source.add_argument(
         "--rtsp-url",
-        default=os.environ["RTSP_URL"]
+        action="append",
+        # If RTSP_URL is in the environment, use it, otherwise just use a blank list
+        # This may cause problems down the road, but if it does, env for this can be removed
+        default=[os.environ["RTSP_URL"]]
         if "RTSP_URL" in os.environ and os.environ["RTSP_URL"] != ""
-        else None,  # noqa: E501
+        else [],
         type=str,
         help="RTSP camera URL",
     )
     stream_source.add_argument(
         "--capture-device",
-        default=os.environ["CAPTURE_DEVICE"]
+        action="append",
+        # If CAPTURE_DEVICE is in the environment, use it, otherwise just use a blank list
+        # If __main__.py detects that no capture device or remote stream is set, it will default to 0
+        default=[int(os.environ["CAPTURE_DEVICE"])]
         if "CAPTURE_DEVICE" in os.environ and os.environ["CAPTURE_DEVICE"] != ""
-        else 0,  # noqa: E501
+        else [],
         type=int,
         help="Capture device number",
     )
@@ -67,16 +71,20 @@ def set_argparse():
     video_options.add_argument(
         "--no-display",
         default=os.environ["NO_DISPLAY"]
-        if "NO_DISPLAY" in os.environ and os.environ["NO_DISPLAY"] != ""
+        if "NO_DISPLAY" in os.environ
+        and os.environ["NO_DISPLAY"] != ""
+        and os.environ["NO_DISPLAY"].lower() != "false"
         else False,
         action="store_true",
         help="Don't display the video feed",
     )
     video_options.add_argument(
-        '-c',
-        '--force-disable-tensorflow-gpu',
+        "-c",
+        "--force-disable-tensorflow-gpu",
         default=os.environ["FORCE_DISABLE_TENSORFLOW_GPU"]
-        if "FORCE_DISABLE_TENSORFLOW_GPU" in os.environ and os.environ["FORCE_DISABLE_TENSORFLOW_GPU"] != ""
+        if "FORCE_DISABLE_TENSORFLOW_GPU" in os.environ
+        and os.environ["FORCE_DISABLE_TENSORFLOW_GPU"] != ""
+        and os.environ["FORCE_DISABLE_TENSORFLOW_GPU"].lower() != "false"
         else False,
         action="store_true",
         help="Force disable tensorflow GPU through env since sometimes it's not worth it to install cudnn and whatnot",
@@ -92,6 +100,7 @@ def set_argparse():
         help="The URL to send notifications to",
     )
 
+    # Various timers
     timers = argparser.add_argument_group("Timers")
     timers.add_argument(
         "--detection-duration",
@@ -119,7 +128,6 @@ def set_argparse():
         help="The time (seconds) before another notification can be sent",
     )
 
-
     face_recognition = argparser.add_argument_group("Face Recognition options")
     face_recognition.add_argument(
         "--faces-directory",
@@ -143,17 +151,17 @@ def set_argparse():
         default=os.environ["NO_REMOVE_REPRESENTATIONS"]
         if "NO_REMOVE_REPRESENTATIONS" in os.environ
         and os.environ["NO_REMOVE_REPRESENTATIONS"] != ""
+        and os.environ["NO_REMOVE_REPRESENTATIONS"].lower() != "false"
         else False,
         action="store_true",
         help="Don't remove representations_<model>.pkl at the start of the program. Greatly improves startup time, but doesn't take into account changes to the faces directory since it was created",  # noqa: E501
     )
 
-
-
     object_detection = argparser.add_argument_group("Object Detection options")
     object_detection.add_argument(
         "--detect-object",
-        nargs="*",
+        action="append",
+        # Stuff is appended to default, as far as I can tell
         default=[],
         type=str,
         help="The object(s) to detect. Must be something the model is trained to detect",
@@ -163,9 +171,23 @@ def set_argparse():
         default=os.environ["OBJECT_CONFIDENCE_THRESHOLD"]
         if "OBJECT_CONFIDENCE_THRESHOLD" in os.environ
         and os.environ["OBJECT_CONFIDENCE_THRESHOLD"] != ""
-        else 0.6,
+        # I think this should always be a str so using lower shouldn't be a problem.
+        # Also, if the first check fails the rest shouldn't be run
+        and os.environ["OBJECT_CONFIDENCE_THRESHOLD"].lower() != "false" else 0.6,
         type=float,
         help="The confidence threshold to use",
+    )
+
+    debug = argparser.add_argument_group("Debug options")
+    debug.add_argument(
+        "--fake-second-source",
+        help="Duplicate the first source and use it as a second source. Capture device takes priority.",
+        action="store_true",
+        default=os.environ["FAKE_SECOND_SOURCE"]
+        if "FAKE_SECOND_SOURCE" in os.environ
+        and os.environ["FAKE_SECOND_SOURCE"] != ""
+        and os.environ["FAKE_SECOND_SOURCE"].lower() != "false"
+        else False,
     )
 
     # return argparser

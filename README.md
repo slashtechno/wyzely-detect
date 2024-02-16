@@ -16,6 +16,9 @@ Recognize faces/objects in a video stream (from a webcam or a security camera) a
     - All RTSP feeds _should_ work, however.  
 - Python 3.10 or 3.11  
 - Poetry (optional)  
+- Windows or Linux  
+    - I've tested this on MacOS - it works on my 2014 MacBook Air but not a 2011 MacBook Pro  
+    - Both were upgraded with OpenCore, with the MacBook Air running Monterey and the MacBook Pro running a newer version of MacOS, which may have been the problem  
 
 ### Docker  
 - A Wyze Cam  
@@ -46,6 +49,7 @@ This assumes you have Python 3.10 or 3.11 installed
 
 #### Poetry  
 1. `poetry install`  
+    a. For GPU support, use `poetry install -E cuda --with gpu`
 2. `poetry run -- wyzely-detect`  
 ### Configuration  
 The following are some basic CLI options. Most flags have environment variable equivalents which can be helpful when using Docker. 

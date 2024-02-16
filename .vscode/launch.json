@@ -10,10 +10,20 @@
             "request": "launch",
             "module": "wyzely_detect",
             "args": [
-                "--run-scale", "0.25", "--view-scale", "0.5", "--no-remove-representations"
+                "--run-scale", "0.25", "--view-scale", "0.5", "--no-remove-representations", "--fake-second-source"
             ],
             "justMyCode": true
         },
+        // {
+        //     "name": "Quick, Specific Debug",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "module": "wyzely_detect",
+        //     "args": [
+        //         "--run-scale", "0.25", "--view-scale", "0.5", "--no-remove-representations", "--detect-object", "person", "--detect-object", "cell phone"
+        //     ],
+        //     "justMyCode": true
+        // },
         {
             // "name": "Python: Module",
             "name": "Full Debug",
