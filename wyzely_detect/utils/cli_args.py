@@ -95,6 +95,7 @@ def set_argparse():
         "--ntfy-url",
         default=os.environ["NTFY_URL"]
         if "NTFY_URL" in os.environ and os.environ["NTFY_URL"] != ""
+        # This is None but there is a default set in notify.py
         else None,
         type=str,
         help="The URL to send notifications to",
