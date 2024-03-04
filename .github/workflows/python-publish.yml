@@ -8,6 +8,7 @@
 
 name: Upload Python Package
 
+
 on:
   release:
     types: [published]
@@ -15,6 +16,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   deploy:
