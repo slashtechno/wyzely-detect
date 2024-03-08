@@ -7,15 +7,18 @@ services:
         restart: unless-stopped
         image: mrlt8/wyze-bridge:latest
         # The ports can be removed since we're using the network
-        # Just an unnecesary security risk to expose them but can be useful for debugging  
+        # Just an unnecesary security risk to expose them but can be useful for debugging
         # ports:
         #     - 1935:1935 # RTMP
         #     - 8554:8554 # RTSP (this is really the only one we need)
         #     - 8888:8888 # HLS
-        #     - 5000:5000 # WEB-UI
+        # - 5000:5000 # WEB-UI
         environment:
-            - WYZE_EMAIL=${WYZE_EMAIL} # Replace with wyze email 
-            - WYZE_PASSWORD=${WYZE_PASSWORD} # Replace with wyze password
+            # This is a simple configuration without 2FA.
+            # For advanced configuration, including using an API key, see https://github.com/mrlt8/docker-wyze-bridge/wiki/Two-Factor-Authentication
+            # Either replace the following with your Wyze username and password, or set the environment variables
+            - WYZE_EMAIL=${WYZE_EMAIL} 
+            - WYZE_PASSWORD=${WYZE_PASSWORD}
         networks:
             all:
     ntfy:
@@ -35,12 +38,24 @@ services:
         all:
     wyzely-detect:
       container_name: wyzely-detect
-      restart: unless-stopped 
-      image: ghcr.io/slashtechno/wyzely-detect:latest
+      # restart: unless-stopped 
+      # image: ghcr.io/slashtechno/wyzely-detect:latest
       # Building from source is also an option
-      # build:
-        # context: .
-        # dockerfile: Dockerfile
+      build:
+        context: .
+        dockerfile: Dockerfile
+      command:
+        - "--ntfy-url"
+        # Replace "wyzely-detect" with the desired notification stream
+        - "http://ntfy:80/wyzely-detect"
+
+        - "--rtsp-url"
+        # Replace "cv" with the desired rtsp stream
+        - "rtsp://bridge:8554/cv"
+
+        # Example second rtsp stream
+        # - "--rtsp-url"
+        # - "rtsp://bridge:8554/camera"
       volumes:
         - ./faces:/app/faces
       networks:

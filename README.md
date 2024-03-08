@@ -14,6 +14,7 @@ Recognize faces/objects in a video stream (from a webcam or a security camera) a
 ### Python  
 - Camera, either a webcam or a Wyze Cam  
     - All RTSP feeds _should_ work, however.  
+    - **WSL, by default, does not support USB devices.** It is recommended to natively run this, but it is possible to use it on WSL with streams or some workarounds.  
 - Python 3.10 or 3.11  
 - Poetry (optional)  
 - Windows or Linux  
@@ -37,20 +38,24 @@ Cloning the repository is not required when installing from PyPi but is required
 2. `cd` into the cloned repository  
 3. Then, either install with [Poetry](https://python-poetry.org/) or run with Docker  
 
-#### Docker  
-1. Modify to `docker-compose.yml` to achieve desired configuration  
-2. Run in the background with `docker compose up -d  
 
-#### Installing from PyPi with pip
+#### Installing from PyPi with pip (recommended)  
 This assumes you have Python 3.10 or 3.11 installed  
 1. `pip install wyzely-detect`  
     a. You may need to use `pip3` instead of `pip`  
 2. `wyzely-detect`  
 
-#### Poetry  
+#### Poetry (best for GPU support)
 1. `poetry install`  
     a. For GPU support, use `poetry install -E cuda --with gpu`
 2. `poetry run -- wyzely-detect`  
+
+#### Docker  
+Running with Docker has the benefit of having easier configuration, the ability to run headlessly, and easy setup of Ntfy and [mrlt8/docker-wyze-bridge](https://github.com/mrlt8/docker-wyze-bridge). However, for now, CPU-only is supported. Contributions are welcome to add GPU support. In addition, Docker is tested a less-tested method of running this program.  
+
+1. Modify to `docker-compose.yml` to achieve desired configuration  
+2. Run in the background with `docker compose up -d`
+
 ### Configuration  
 The following are some basic CLI options. Most flags have environment variable equivalents which can be helpful when using Docker. 
 
