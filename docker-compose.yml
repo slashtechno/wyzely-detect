@@ -38,7 +38,7 @@ services:
         all:
     wyzely-detect:
       container_name: wyzely-detect
-      # restart: unless-stopped 
+      restart: unless-stopped 
       # image: ghcr.io/slashtechno/wyzely-detect:latest
       # Building from source is also an option
       build:
@@ -60,10 +60,6 @@ services:
         - ./faces:/app/faces
       networks:
         all:
-      environment:
-        - URL=rtsp://bridge:8554/cv
-        - NO_DISPLAY=true
-        - NTFY_URL=http://ntfy:80/wyzely-detect
       depends_on:
         - bridge
 

@@ -1,3 +1,6 @@
 Dockerfile
 .venv
 docker-compose.yml
+*.ipnyb
+dist/
+*.pkl

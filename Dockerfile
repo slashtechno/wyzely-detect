@@ -13,7 +13,7 @@ COPY . .
 
 RUN poetry install
 
-RUN poetry run pip uninstall -y torchvision 
-RUN poetry run pip install torchvision 
+# RUN poetry run pip uninstall -y torchvision 
+# RUN poetry run pip install torchvision 
 
 ENTRYPOINT ["poetry", "run", "python", "-m", "--", "wyzely_detect", "--no-display"]
