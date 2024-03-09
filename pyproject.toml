@@ -7,7 +7,6 @@ keywords = ["object-detection", "face-detection", "wyze", "security", "yolov8", 
 license = {file = "LICENSE"}
 readme = "README.md"
 requires-python = ">=3.10, <3.12"
-
 dependencies = [
     "python-dotenv>=1.0.0,<2.0.0",
     "httpx>=0.25.0,<0.26.0",
@@ -26,16 +25,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-gpu = [
-    "torch (>=2.1.0,<2.2.0); extra=='cuda'",
-    "tensorflow (>=2.14.0,<2.15.0); extra=='cuda'"
-]
+gpu = ["tensorflow[and-cuda] (>=2.14.0,<2.15.0)"]
 
-[project.dev-dependencies]
-black = ">=23.9.1,<24.0.0"
-ruff = ">=0.0.291,<0.1.0"
-ipykernel = ">=6.25.2,<7.0.0"
-nbconvert = ">=7.9.2,<8.0.0"
+[project.scripts]
+wyzely-detect = "wyzely_detect.__main__:main"
 
 [project.urls]
 Repository = "https://github.com/slashtechno/wyzely-detect"
@@ -44,12 +37,20 @@ Repository = "https://github.com/slashtechno/wyzely-detect"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+
+[tool.hatch.build.targets.wheel]
+packages = ["wyzely_detect"]
+
+
 [tool.rye]
 managed = true
-dev-dependencies = []
+dev-dependencies = [
+    "black>=23.9.1,<24.0.0",
+    "ruff>=0.0.291,<0.1.0",
+    "ipykernel>=6.25.2,<7.0.0",
+    "nbconvert>=7.9.2,<8.0.0"
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/rye"]
