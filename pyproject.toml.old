@@ -1,0 +1,91 @@
+[tool.poetry]
+name = "wyzely-detect"
+version = "0.2.1"
+description = "Recognize faces/objects in a video stream (from a webcam or a security camera) and send notifications to your devices"
+authors = ["slashtechno <77907286+slashtechno@users.noreply.github.com>"]
+repository = "https://github.com/slashtechno/wyzely-detect"
+keywords = ["object-detection", "face-detection", "wyze", "security", "yolov8", "unified-push"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "wyzely_detect"}]
+
+[tool.poetry.dependencies]
+
+# Works on 3.10 and 3.11, at least in my testing
+python = ">=3.10, <3.12"
+
+python-dotenv = "^1.0.0"
+httpx = "^0.25.0"
+opencv-python = "^4.8.1.78"
+ultralytics = "^8.0.190"
+hjson = "^3.1.0"
+numpy = "^1.23.2"
+
+# https://github.com/python-poetry/poetry/issues/6409#issuecomment-1911735833
+# To install with GPU, use poetry install -E cuda --with gpu
+torch = {version = "2.1.*", source = "pytorch-cpu", markers = "extra!='cuda'" }
+
+# https://stackoverflow.com/a/76477590/18270659
+# https://discfuss.tensorflow.org/t/tensorflow-io-gcs-filesystem-with-windows/18849/4
+# https://github.com/python-poetry/poetry/issues/8271#issuecomment-1712020965
+# Might be able to remove this version constraint later
+# Working versions:
+# Python version 3.10.12 and 3.10.5 both work
+# CUDA version - 12.2
+# cuDNN version - 8.8.1
+# Installed from Nvidia website - nvidia-cuda-toolkit is not installed, but default PopOS drivers are installed
+absl-py = "^2.1.0"
+tensorflow = {version = "^2.13.0", markers = "extra!='cuda'"}
+tensorflow-macos = { version = "^2.13.0", platform = "darwin", markers = "platform_machine=='arm64'" }
+tensorflow-intel = { version = "^2.13.0", platform = "win32" }
+tensorflow-io-gcs-filesystem = [
+    { version = "< 0.32.0", markers = "platform_system == 'Windows'" }
+]
+
+
+deepface = "^0.0.79"
+prettytable = "^3.9.0"
+
+
+[tool.poetry.group.gpu]
+optional = true
+
+[tool.poetry.group.gpu.dependencies]
+torch = {version = "2.1.*", source = "pytorch-cu121", markers = "extra=='cuda'"}
+tensorflow = {version = "^2.14.0", extras = ["and-cuda"], markers = "extra=='cuda'"}
+
+[tool.poetry.extras]
+# Might be better to rename this to nocpu since it's more accurate
+cuda = []
+
+[[tool.poetry.source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
+[[tool.poetry.source]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
+ruff = "^0.0.291"
+ipykernel = "^6.25.2"
+nbconvert = "^7.9.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+# More than the default (88) of `black` to make comments less of a headache
+# Where possible, `black` will attempt to format to 88 characters
+# However, setting ruff to 135 will allow for longer lines that can't be auto-formatted
+line-length = 135
+extend-select= ["FIX002"]
+
+[tool.poetry.scripts]
+wyzely-detect = "wyzely_detect.__main__:main"
