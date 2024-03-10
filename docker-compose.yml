@@ -39,11 +39,11 @@ services:
     wyzely-detect:
       container_name: wyzely-detect
       restart: unless-stopped 
-      # image: ghcr.io/slashtechno/wyzely-detect:latest
+      image: ghcr.io/slashtechno/wyzely-detect:latest
       # Building from source is also an option
-      build:
-        context: .
-        dockerfile: Dockerfile
+      # build:
+      #   context: .
+      #   dockerfile: Dockerfile
       command:
         - "--ntfy-url"
         # Replace "wyzely-detect" with the desired notification stream
