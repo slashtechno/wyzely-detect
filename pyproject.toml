@@ -24,9 +24,10 @@ numpy = "^1.23.2"
 # https://github.com/python-poetry/poetry/issues/6409#issuecomment-1911735833
 # If GPU support doesn't work, `poetry install -E cuda --with gpu` will force it to be installed from the GPU PyTorch repo
 # However, PyPi's `torch` has CUDA 12.1 support by default on Linux, so in that case it should not be needed.
-torch = "^2.2.1"
-#torch = {version = "^2.2.1", source = "pytorch-cpu", markers = "extra!='cuda'" }
-
+torch = [
+    {version = "^2.2.1", markers = "extra!='cuda' and platform_system=='Linux'"},
+    {version = "^2.2.1", source = "pytorch-cpu", markers = "extra!='cuda' and platform_system!='Linux'"},
+    ]
 # https://stackoverflow.com/a/76477590/18270659
 # https://discfuss.tensorflow.org/t/tensorflow-io-gcs-filesystem-with-windows/18849/4
 # https://github.com/python-poetry/poetry/issues/8271#issuecomment-1712020965

@@ -2096,8 +2096,8 @@ files = [
 [package.dependencies]
 numpy = [
     {version = ">=1.23.5", markers = "python_version >= \"3.11\""},
-    {version = ">=1.21.4", markers = "python_version >= \"3.10\" and platform_system == \"Darwin\" and python_version < \"3.11\""},
     {version = ">=1.21.2", markers = "platform_system != \"Darwin\" and python_version >= \"3.10\" and python_version < \"3.11\""},
+    {version = ">=1.21.4", markers = "python_version >= \"3.10\" and platform_system == \"Darwin\" and python_version < \"3.11\""},
 ]
 
 [[package]]
@@ -3855,4 +3855,4 @@ cuda = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <3.12"
-content-hash = "e40609bfdd173f240b5e5bcca80d0ee27a573bad0340d8790a1c9ae1272e55d8"
+content-hash = "9ac2036a11ad1ed50d37b455539316efdeed714e6d5e8b9b001a85a2f753b37b"
